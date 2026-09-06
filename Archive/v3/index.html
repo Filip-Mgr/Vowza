@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vowza — Less emailing. More celebrating.</title>
+
+<!-- Loads two fonts from Google Fonts: Cormorant Garamond (serif, used for headings)
+     and Work Sans (sans-serif, used for body text/buttons/labels) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================
+     COLOR PALETTE
+     Defined once here as variables (--name), then reused
+     everywhere below with var(--name). Change a color once
+     here and it updates on the whole page.
+     ============================================ */
+  :root {
+    --ivory: #FAF6F1;        /* page background */
+    --ink: #2B2620;          /* main text color */
+    --ink-soft: #6B6156;     /* muted/secondary text */
+    --evergreen: #33503F;    /* primary brand/button color */
+    --evergreen-dark: #253A2D; /* darker shade, used on button hover */
+    --blush: #E7B7B0;        /* soft accent color */
+    --gold: #C9A227;         /* star rating color */
+    --border: #E5DED4;       /* hairline border color used throughout */
+  }
+
+  /* Resets every element's box-sizing so padding/borders don't
+     unexpectedly enlarge elements beyond their set width */
+  * { box-sizing: border-box; }
+
+  /* Base page styling: background, text color, default font */
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+  }
+
+  /* Removes the default blue/underline link styling so links
+     match the surrounding text unless we style them ourselves */
+  a { text-decoration: none; color: inherit; }
+
+  /* A reusable "container" class: centers content and caps its
+     width so text/cards don't stretch edge-to-edge on wide screens */
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ============================================
+     HEADER (logo + nav links at the very top)
+     ============================================ */
+  header.site {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  header.site .wrap {
+    display: flex;              /* lays logo + nav side by side */
+    align-items: center;
+    justify-content: space-between; /* pushes them to opposite ends */
+  }
+  .wordmark { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; }
+  nav a { font-size: 14px; margin-left: 24px; color: var(--ink-soft); }
+  nav a:hover { color: var(--evergreen); }
+
+  /* ============================================
+     HERO SECTION (big headline + buttons at the top)
+     ============================================ */
+  .hero {
+    text-align: center;
+    padding: 90px 24px 70px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 52px;
+    max-width: 640px;
+    margin: 0 auto 18px;   /* 0 auto centers the block itself */
+    line-height: 1.15;
+  }
+  .hero p {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 460px;
+    margin: 0 auto 34px;
+  }
+  .hero .cta-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+  /* Shared button styles, reused across all pages */
+  .btn {
+    display: inline-block;
+    padding: 14px 30px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--evergreen);
+  }
+  .btn.primary { background: var(--evergreen); color: #fff; }         /* solid filled button */
+  .btn.primary:hover { background: var(--evergreen-dark); }
+  .btn.ghost { background: #fff; color: var(--evergreen); }           /* outline-only button */
+  .btn.ghost:hover { background: var(--blush); border-color: var(--blush); color: var(--ink); }
+
+  /* ============================================
+     "DISCOVER / COMPARE / BOOK" 3-STEP SECTION
+     ============================================ */
+  section.steps { padding: 20px 0 70px; }
+  .steps .wrap {
+    display: grid;                              /* 3 equal columns side by side */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .step { text-align: center; }
+  .step .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 600;
+    color: var(--evergreen);
+    margin-bottom: 8px;
+  }
+  .step h3 { font-size: 16px; margin: 0 0 8px; }
+  .step p { font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0; }
+
+  /* ============================================
+     "FEATURED SUPPLIERS" PREVIEW SECTION
+     ============================================ */
+  section.featured {
+    padding: 60px 0 80px;
+    border-top: 1px solid var(--border);
+  }
+  .featured .head {
+    display: flex;
+    justify-content: space-between;  /* title on the left, "See all" link on the right */
+    align-items: baseline;
+    margin-bottom: 26px;
+  }
+  .featured h2 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 28px; margin: 0; }
+  .featured .head a { font-size: 14px; color: var(--evergreen); }
+  .featured .head a:hover { text-decoration: underline; }
+
+  /* The mini supplier cards grid: auto-fit + minmax makes columns
+     automatically wrap to fewer columns on smaller screens, without
+     needing a separate @media rule for every screen size */
+  .mini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+  }
+  .mini-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;   /* keeps the image's corners clipped to match the rounded card */
+    background: #fff;
+    transition: transform 0.15s ease, box-shadow 0.15s ease; /* smooths the hover effect */
+  }
+  .mini-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(43,38,32,0.08); } /* lifts the card slightly on hover */
+  .mini-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+  .mini-card .body { padding: 16px; }
+  .mini-card .category { font-size: 12px; color: var(--ink-soft); }
+  .mini-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 600; margin: 4px 0 6px; }
+  .mini-card .meta { font-size: 13px; color: var(--ink-soft); }
+
+  /* ============================================
+     FOOTER
+     ============================================ */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 30px 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  /* ============================================
+     MOBILE STYLES
+     Only applies when the screen is 700px wide or narrower
+     (phones/small tablets) — shrinks the heading and stacks
+     the 3-step section into a single column
+     ============================================ */
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 36px; }
+    .steps .wrap { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============================================
+       HEADER: logo on the left, nav links on the right
+       ============================================ -->
+  <header class="site">
+    <div class="wrap">
+      <div class="wordmark">Vowza</div>
+      <nav>
+        <a href="supplier-list.html">Browse suppliers</a>
+        <a href="supplier-profile.html">Sample profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================================
+       HERO: main headline + the two big call-to-action buttons.
+       Both buttons link to the other two pages you already built.
+       ============================================ -->
+  <section class="hero">
+    <h1>Find suppliers who fit your date, style and budget — and book them in one place.</h1>
+    <p>Less emailing. More celebrating.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="supplier-list.html">Browse Suppliers</a>
+      <a class="btn ghost" href="supplier-profile.html">View a Sample Profile</a>
+    </div>
+  </section>
+
+  <!-- ============================================
+       3-STEP EXPLAINER: Discover / Compare / Book.
+       Purely descriptive — no links, just three text blocks
+       laid out side by side using CSS Grid (see .steps .wrap above).
+       ============================================ -->
+  <section class="steps">
+    <div class="wrap">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Discover</h3>
+        <p>Search suppliers filtered by your wedding date, location and budget.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Compare</h3>
+        <p>View portfolios, packages and reviews side by side, save your favourites.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Book</h3>
+        <p>Send a booking request and manage everything from one dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       FEATURED SUPPLIERS: a small preview grid of 3 suppliers.
+       Each entire card is wrapped in an <a> tag, so clicking
+       anywhere on the card (not just the text) follows the link.
+       ============================================ -->
+  <section class="featured">
+    <div class="wrap">
+      <div class="head">
+        <h2>Featured suppliers</h2>
+        <a href="supplier-list.html">See all →</a>
+      </div>
+      <div class="mini-grid">
+
+        <!-- Card 1: links straight to the full profile page -->
+        <a class="mini-card" href="supplier-profile.html">
+          <img src="https://picsum.photos/seed/vowza-photo1/600/450" alt="Jane Photography portfolio image">
+          <div class="body">
+            <div class="category">Photography</div>
+            <h3>Jane Photography</h3>
+            <div class="meta">Melbourne · From $2,500</div>
+          </div>
+        </a>
+
+        <!-- Card 2: links to the browse/list page (no dedicated profile page built for this one yet) -->
+        <a class="mini-card" href="supplier-list.html">
+          <img src="https://picsum.photos/seed/vowza-florist1/600/450" alt="Bloom & Co florist portfolio image">
+          <div class="body">
+            <div class="category">Florist</div>
+            <h3>Bloom & Co</h3>
+            <div class="meta">Geelong · From $850</div>
+          </div>
+        </a>
+
+        <!-- Card 3: same as above -->
+        <a class="mini-card" href="supplier-list.html">
+          <img src="https://picsum.photos/seed/vowza-hmu1/600/450" alt="Studio Belle hair and makeup portfolio image">
+          <div class="body">
+            <div class="category">Hair & Makeup</div>
+            <h3>Studio Belle</h3>
+            <div class="meta">Melbourne · From $480</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       FOOTER: simple closing line at the bottom of the page
+       ============================================ -->
+  <footer>
+    Vowza — Less emailing. More celebrating.
+  </footer>
+
+</body>
+</html>

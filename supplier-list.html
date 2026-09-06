@@ -6,191 +6,28 @@
 <title>Vowza — Find your suppliers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  /* Same color palette as index.html — kept identical across all
-     pages so the whole site feels like one product, not three
-     separate experiments */
-  :root {
-    --ivory: #FAF6F1;
-    --ink: #2B2620;
-    --ink-soft: #6B6156;
-    --evergreen: #33503F;
-    --evergreen-dark: #253A2D;
-    --blush: #E7B7B0;
-    --gold: #C9A227;
-    --border: #E5DED4;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--ivory);
-    color: var(--ink);
-    font-family: 'Work Sans', sans-serif;
-  }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-
-  /* ============================================
-     HEADER
-     ============================================ */
-  header.site {
-    padding: 28px 0 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  header.site .wrap { display: flex; align-items: baseline; justify-content: space-between; }
-  .wordmark {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-  .tagline { font-size: 13px; color: var(--ink-soft); }
-
-  /* ============================================
-     PAGE INTRO (the "Suppliers available for..." heading)
-     ============================================ */
-  .intro { padding: 40px 0 24px; }
-  .intro h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: 36px;
-    max-width: 560px;
-    line-height: 1.15;
-    margin: 0 0 8px;
-  }
-  .intro p { color: var(--ink-soft); font-size: 15px; max-width: 480px; }
-
-  /* ============================================
-     FILTER CHIPS ROW
-     These are static/decorative for now (not clickable filters
-     yet) — just showing what the real filter UI would look like.
-     Making these actually work would need JavaScript, which
-     comes later.
-     ============================================ */
-  .filters {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    padding-bottom: 32px;
-  }
-  .filters span {
-    font-size: 13px;
-    padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    color: var(--ink-soft);
-    background: #fff;
-  }
-  .filters span.active {
-    background: var(--evergreen);
-    color: #fff;
-    border-color: var(--evergreen);
-  }
-
-  /* ============================================
-     SUPPLIER CARD GRID
-     auto-fit + minmax(260px, 1fr) means: fit as many 260px+ wide
-     columns as will comfortably fit the screen, and stretch them
-     evenly to fill leftover space. This is what makes the grid
-     reflow automatically on a phone vs a laptop, with no separate
-     mobile-specific grid rule needed.
-     ============================================ */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 28px;
-    padding-bottom: 60px;
-  }
-
-  /* Each individual supplier card */
-  .card {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-  .card:hover {
-    transform: translateY(-3px);   /* lifts the card slightly */
-    box-shadow: 0 12px 24px rgba(43,38,32,0.08);
-  }
-  .card .photo {
-    aspect-ratio: 4 / 3;   /* keeps every photo the same shape regardless of the original image size */
-    width: 100%;
-    object-fit: cover;     /* crops the photo to fill the box neatly instead of stretching it */
-    display: block;
-  }
-  .card .body { padding: 18px 18px 20px; }
-  .card .category { font-size: 12px; color: var(--ink-soft); }
-  .card h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
-    font-weight: 600;
-    margin: 4px 0 6px;
-  }
-  .card .meta {
-    font-size: 13px;
-    color: var(--ink-soft);
-    display: flex;
-    justify-content: space-between;  /* location on the left, price on the right */
-    margin-bottom: 10px;
-  }
-  .card .rating { font-size: 13px; color: var(--ink); margin-bottom: 4px; }
-  .card .rating .stars { color: var(--gold); }
-  .card .availability {
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 16px;
-  }
-  /* Small colored dot used as the availability indicator */
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--evergreen); display: inline-block; }
-  .dot.grey { background: #C9C2B5; }  /* greyed-out version shown when a supplier is already booked */
-
-  /* Button row at the bottom of each card */
-  .card .actions { display: flex; gap: 10px; }
-  .btn {
-    flex: 1;   /* makes both buttons share the width equally */
-    text-align: center;
-    padding: 10px 0;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--evergreen);
-  }
-  .btn.primary { background: var(--evergreen); color: #fff; }   /* "View Profile" — solid button */
-  .btn.primary:hover { background: var(--evergreen-dark); }
-  .btn.ghost { background: #fff; color: var(--evergreen); }     /* "Save" — outline button */
-  .btn.ghost:hover { background: var(--blush); border-color: var(--blush); color: var(--ink); }
-
-  /* ============================================
-     MOBILE STYLES (screens 640px or narrower)
-     ============================================ */
-  @media (max-width: 640px) {
-    .intro h1 { font-size: 28px; }
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- HEADER: logo + tagline -->
   <header class="site">
     <div class="wrap">
-      <div>
-        <div class="wordmark">Vowza</div>
-        <div class="tagline">Less emailing. More celebrating.</div>
-      </div>
+      <a class="wordmark" href="index.html">Vowza</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="supplier-list.html" class="active">Discover</a>
+        <a href="my-wedding.html">My Wedding</a>
+        <a href="shortlist.html">Saved</a>
+        <a href="couple-profile.html">Profile</a>
+      </nav>
     </div>
   </header>
 
-  <!-- PAGE INTRO: headline showing what date/criteria these results match -->
-  <section class="intro wrap">
+  <section class="page-head wrap">
     <h1>Suppliers available for 14 February 2027</h1>
     <p>Matched to your wedding date, guest count and budget in Melbourne.</p>
   </section>
 
-  <!-- FILTER CHIPS: visual only for now, not yet functional -->
   <div class="wrap">
     <div class="filters">
       <span class="active">All categories</span>
@@ -202,17 +39,9 @@
     </div>
   </div>
 
-  <!-- ============================================
-       SUPPLIER CARD GRID
-       Each .card below follows the exact same structure:
-       photo → category → name → location/price → rating →
-       availability → two buttons. Once you understand one
-       card, you understand all six.
-       ============================================ -->
   <div class="wrap">
     <div class="grid">
 
-      <!-- Card: Jane Photography -->
       <div class="card">
         <img class="photo" src="https://picsum.photos/seed/vowza-photo1/600/450" alt="Jane Photography portfolio image">
         <div class="body">
@@ -222,13 +51,12 @@
           <div class="rating"><span class="stars">★★★★★</span> 4.9 (86 reviews)</div>
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
-            <div class="btn primary">View Profile</div>
-            <div class="btn ghost">♥ Save</div>
+            <a class="btn primary" href="supplier-profile.html">View Profile</a>
+            <a class="btn ghost" href="shortlist.html">♥ Save</a>
           </div>
         </div>
       </div>
 
-      <!-- Card: Bloom & Co (Florist) -->
       <div class="card">
         <img class="photo" src="https://picsum.photos/seed/vowza-florist1/600/450" alt="Bloom & Co florist portfolio image">
         <div class="body">
@@ -238,14 +66,12 @@
           <div class="rating"><span class="stars">★★★★★</span> 4.8 (52 reviews)</div>
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
-            <div class="btn primary">View Profile</div>
-            <div class="btn ghost">♥ Save</div>
+            <a class="btn primary" href="supplier-profile.html">View Profile</a>
+            <a class="btn ghost" href="shortlist.html">♥ Save</a>
           </div>
         </div>
       </div>
 
-      <!-- Card: DJ Marco Live — note this one uses the GREY dot,
-           since he's already booked on this date -->
       <div class="card">
         <img class="photo" src="https://picsum.photos/seed/vowza-dj1/600/450" alt="DJ Marco portfolio image">
         <div class="body">
@@ -255,13 +81,12 @@
           <div class="rating"><span class="stars">★★★★☆</span> 4.6 (34 reviews)</div>
           <div class="availability"><span class="dot grey"></span> Booked on your date</div>
           <div class="actions">
-            <div class="btn primary">View Profile</div>
-            <div class="btn ghost">♥ Save</div>
+            <a class="btn primary" href="supplier-profile.html">View Profile</a>
+            <a class="btn ghost" href="shortlist.html">♥ Save</a>
           </div>
         </div>
       </div>
 
-      <!-- Card: Studio Belle (Hair & Makeup) -->
       <div class="card">
         <img class="photo" src="https://picsum.photos/seed/vowza-hmu1/600/450" alt="Studio Belle hair and makeup portfolio image">
         <div class="body">
@@ -271,13 +96,12 @@
           <div class="rating"><span class="stars">★★★★★</span> 5.0 (61 reviews)</div>
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
-            <div class="btn primary">View Profile</div>
-            <div class="btn ghost">♥ Save</div>
+            <a class="btn primary" href="supplier-profile.html">View Profile</a>
+            <a class="btn ghost" href="shortlist.html">♥ Save</a>
           </div>
         </div>
       </div>
 
-      <!-- Card: Reel Moments (Videography) -->
       <div class="card">
         <img class="photo" src="https://picsum.photos/seed/vowza-video1/600/450" alt="Reel Moments videography portfolio image">
         <div class="body">
@@ -287,13 +111,12 @@
           <div class="rating"><span class="stars">★★★★☆</span> 4.7 (29 reviews)</div>
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
-            <div class="btn primary">View Profile</div>
-            <div class="btn ghost">♥ Save</div>
+            <a class="btn primary" href="supplier-profile.html">View Profile</a>
+            <a class="btn ghost" href="shortlist.html">♥ Save</a>
           </div>
         </div>
       </div>
 
-      <!-- Card: Anna Hart (Celebrant) -->
       <div class="card">
         <img class="photo" src="https://picsum.photos/seed/vowza-celebrant1/600/450" alt="Celebrant Anna portfolio image">
         <div class="body">
@@ -303,14 +126,18 @@
           <div class="rating"><span class="stars">★★★★★</span> 4.9 (40 reviews)</div>
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
-            <div class="btn primary">View Profile</div>
-            <div class="btn ghost">♥ Save</div>
+            <a class="btn primary" href="supplier-profile.html">View Profile</a>
+            <a class="btn ghost" href="shortlist.html">♥ Save</a>
           </div>
         </div>
       </div>
 
     </div>
   </div>
+
+  <footer>
+    Vowza — Less emailing. More celebrating.
+  </footer>
 
 </body>
 </html>

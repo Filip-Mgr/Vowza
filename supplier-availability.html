@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar — Vowza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <a class="wordmark" href="supplier-dashboard.html">Vowza <span style="font-size:12px; color:var(--ink-soft); font-family:\'Work Sans\',sans-serif; font-weight:400;">for Suppliers</span></a>
+      <nav>
+        <a href="supplier-dashboard.html">Dashboard</a>
+        <a href="supplier-enquiries.html">Enquiries</a>
+        <a href="supplier-availability.html" class="active">Calendar</a>
+        <a href="supplier-bookings.html">Bookings</a>
+        <a href="supplier-profile-creation.html">Profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-head wrap">
+    <h1>Availability</h1>
+    <p>Tap a date to mark it available, booked, or unavailable.</p>
+  </section>
+
+  <div class="wrap" style="padding-bottom:20px;">
+    <h2 style="font-family:'Cormorant Garamond',serif; font-size:22px;">February 2027</h2>
+    <div class="avail-grid">
+      <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+      <div class="open">1</div><div class="open">2</div><div class="booked">3</div><div class="open">4</div>
+      <div class="open">5</div><div class="booked">6</div><div class="unavailable">7</div>
+      <div class="open">8</div><div class="open">9</div><div class="open">10</div><div class="open">11</div>
+      <div class="open">12</div><div class="open">13</div><div class="open">14</div>
+    </div>
+    <div class="legend">
+      <span><span class="dot"></span> Available</span>
+      <span><span class="dot grey"></span> Booked</span>
+      <span><span class="dot" style="background:#C9C2B5;"></span> Unavailable</span>
+    </div>
+  </div>
+
+  <section class="block wrap">
+    <h2>Future functionality</h2>
+    <p style="color:var(--ink-soft); font-size:14px;">Calendar syncing with Google Calendar and Apple Calendar will be added after the MVP.</p>
+  </section>
+
+  <footer>
+    Vowza — Less emailing. More celebrating.
+  </footer>
+
+</body>
+</html>

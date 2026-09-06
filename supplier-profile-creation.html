@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Profile — Vowza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <a class="wordmark" href="supplier-dashboard.html">Vowza <span style="font-size:12px; color:var(--ink-soft); font-family:\'Work Sans\',sans-serif; font-weight:400;">for Suppliers</span></a>
+      <nav>
+        <a href="supplier-dashboard.html">Dashboard</a>
+        <a href="supplier-enquiries.html">Enquiries</a>
+        <a href="supplier-availability.html">Calendar</a>
+        <a href="supplier-bookings.html">Bookings</a>
+        <a href="supplier-profile-creation.html" class="active">Profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-head wrap">
+    <h1>Edit Your Profile</h1>
+    <p>This is what couples will see when they view your listing.</p>
+  </section>
+
+  <div class="wrap" style="padding-bottom:20px;">
+    <form class="form-card" style="max-width:640px;">
+      <div class="field"><label>Business name</label><input type="text" value="Jane Photography"></div>
+      <div class="field"><label>Logo / profile photo</label><input type="file"></div>
+      <div class="field"><label>About</label><textarea>Documentary-style wedding photography with a focus on candid, unposed moments.</textarea></div>
+      <div class="field"><label>Portfolio images</label><input type="file" multiple></div>
+      <div class="field"><label>Services</label><textarea>Full-day wedding photography, engagement shoots, second photographer add-on</textarea></div>
+      <div class="field"><label>Wedding styles</label><input type="text" value="Documentary, candid, natural light"></div>
+      <div class="field"><label>Location</label><input type="text" value="Melbourne, VIC"></div>
+      <div class="field"><label>Travel area</label><input type="text" value="Up to 100km"></div>
+      <a class="btn primary full" href="supplier-dashboard.html">Save Profile</a>
+    </form>
+  </div>
+
+  <section class="block wrap" style="max-width:640px; margin:0 auto;">
+    <h2>Packages</h2>
+    <div class="package">
+      <div>
+        <div class="name">Essential Package</div>
+        <div class="desc">6 hours, 1 photographer, digital gallery</div>
+      </div>
+      <div class="price">$1,500</div>
+    </div>
+    <div class="package recommended">
+      <div>
+        <div class="name">Premium Package</div>
+        <div class="desc">10 hours, 2 photographers, engagement shoot, digital gallery</div>
+      </div>
+      <div class="price">$2,500</div>
+    </div>
+    <div style="text-align:center; margin-top:20px;">
+      <div class="btn ghost">+ Add Package</div>
+    </div>
+  </section>
+
+  <footer>
+    Vowza — Less emailing. More celebrating.
+  </footer>
+
+</body>
+</html>
