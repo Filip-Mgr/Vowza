@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* Same color palette used across all three pages */
   :root {
     --ivory: #FAF6F1;
     --ink: #2B2620;
@@ -26,9 +27,15 @@
   }
   .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
 
+  /* HEADER */
   header.site { padding: 24px 0; border-bottom: 1px solid var(--border); }
   .wordmark { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; }
 
+  /* ============================================
+     HERO: photo on the left, business info on the right.
+     grid-template-columns: 1.1fr 1fr makes the photo column
+     very slightly wider than the text column.
+     ============================================ */
   .hero {
     display: grid;
     grid-template-columns: 1.1fr 1fr;
@@ -57,10 +64,13 @@
     cursor: pointer;
     border: 1px solid var(--evergreen);
   }
-  .btn.primary { background: var(--evergreen); color: #fff; }
+  .btn.primary { background: var(--evergreen); color: #fff; }   /* "Request to Book" */
   .btn.primary:hover { background: var(--evergreen-dark); }
-  .btn.ghost { background: #fff; color: var(--evergreen); }
+  .btn.ghost { background: #fff; color: var(--evergreen); }     /* "Save" */
 
+  /* Shared style for every section below the hero (Portfolio,
+     Services, Packages, Availability, Reviews) — each gets a
+     top border to visually separate it from the section above */
   section.block { padding: 36px 0; border-top: 1px solid var(--border); }
   section.block h2 {
     font-family: 'Cormorant Garamond', serif;
@@ -69,6 +79,13 @@
     margin: 0 0 18px;
   }
 
+  /* ============================================
+     PORTFOLIO GALLERY
+     A 4-column grid where some images span extra rows/columns
+     (.tall spans 2 rows, .wide spans 2 columns) to create a
+     more visually interesting, magazine-style layout instead
+     of a boring uniform grid of identical squares.
+     ============================================ */
   .gallery {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -79,10 +96,22 @@
   .gallery .tall { grid-row: span 2; }
   .gallery .wide { grid-column: span 2; }
 
+  /* ============================================
+     SERVICES LIST
+     A plain list styled to look like clean rows rather than
+     bullet points (list-style: none removes the bullets)
+     ============================================ */
   .services { list-style: none; padding: 0; margin: 0; font-size: 15px; }
   .services li { padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .services li:last-child { border-bottom: none; }
+  .services li:last-child { border-bottom: none; }  /* no line under the very last item */
 
+  /* ============================================
+     PACKAGES (pricing)
+     Each package is a row with the name/description on the
+     left and the price pushed to the right (justify-content:
+     space-between). The "recommended" package gets an extra
+     green accent line on its left edge to stand out slightly.
+     ============================================ */
   .package {
     display: flex;
     justify-content: space-between;
@@ -96,6 +125,12 @@
   .package .desc { font-size: 13px; color: var(--ink-soft); margin-top: 4px; max-width: 460px; }
   .package .price { font-size: 18px; font-weight: 600; white-space: nowrap; }
 
+  /* ============================================
+     AVAILABILITY MINI-CALENDAR
+     7 equal columns (one per day of the week), each date is
+     its own square. Color signals status: plain = header row,
+     green = open, grey = already booked.
+     ============================================ */
   .avail-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -103,7 +138,7 @@
     max-width: 420px;
   }
   .avail-grid div {
-    aspect-ratio: 1;
+    aspect-ratio: 1;   /* forces every cell to be a perfect square */
     border-radius: 6px;
     background: #E9E3D8;
     display: flex;
@@ -112,15 +147,27 @@
     font-size: 12px;
     color: var(--ink-soft);
   }
-  .avail-grid div.open { background: var(--evergreen); color: #fff; }
-  .avail-grid div.booked { background: #D8CFC0; color: #A79C87; }
+  .avail-grid div.open { background: var(--evergreen); color: #fff; }     /* available date */
+  .avail-grid div.booked { background: #D8CFC0; color: #A79C87; }        /* unavailable date */
 
+  /* ============================================
+     REVIEWS
+     Each review is stacked with a hairline divider between them,
+     rather than boxed into separate cards — keeps a long list of
+     reviews feeling calm rather than busy.
+     ============================================ */
   .review { padding: 20px 0; border-bottom: 1px solid var(--border); }
   .review:last-child { border-bottom: none; }
   .review .stars { color: var(--gold); font-size: 14px; margin-bottom: 6px; }
   .review p { margin: 0 0 8px; font-size: 15px; line-height: 1.55; }
   .review .name { font-size: 13px; color: var(--ink-soft); }
 
+  /* ============================================
+     MOBILE STYLES (screens 700px or narrower)
+     Stacks the hero into one column instead of two, and drops
+     the gallery down to 2 columns instead of 4 so images stay
+     a readable size on a small screen.
+     ============================================ */
   @media (max-width: 700px) {
     .hero { grid-template-columns: 1fr; }
     .gallery { grid-template-columns: repeat(2, 1fr); }
@@ -129,10 +176,15 @@
 </head>
 <body>
 
+  <!-- HEADER -->
   <header class="site">
     <div class="wrap"><div class="wordmark">Vowza</div></div>
   </header>
 
+  <!-- ============================================
+       HERO: cover photo + business name, location, rating,
+       short bio, and the two main action buttons
+       ============================================ -->
   <div class="wrap">
     <div class="hero">
       <img src="https://picsum.photos/seed/vowza-photo1/700/525" alt="Jane Photography cover image">
@@ -151,6 +203,9 @@
   </div>
 
   <div class="wrap">
+
+    <!-- PORTFOLIO: image gallery with two "tall" and one "wide"
+         image to break up the grid visually -->
     <section class="block">
       <h2>Portfolio</h2>
       <div class="gallery">
@@ -163,6 +218,7 @@
       </div>
     </section>
 
+    <!-- SERVICES: simple list of what's offered -->
     <section class="block">
       <h2>Services</h2>
       <ul class="services">
@@ -173,6 +229,7 @@
       </ul>
     </section>
 
+    <!-- PACKAGES: two pricing tiers, second one marked "recommended" -->
     <section class="block">
       <h2>Packages</h2>
       <div class="package">
@@ -191,6 +248,9 @@
       </div>
     </section>
 
+    <!-- AVAILABILITY: a static demo calendar — in the real app,
+         this would be generated from real data, not hand-typed
+         like this -->
     <section class="block">
       <h2>Availability — February 2027</h2>
       <div class="avail-grid">
@@ -202,6 +262,7 @@
       </div>
     </section>
 
+    <!-- REVIEWS: two example customer reviews -->
     <section class="block">
       <h2>Reviews</h2>
       <div class="review">
@@ -215,11 +276,8 @@
         <div class="name">Riley & Morgan, married June 2026</div>
       </div>
     </section>
+
   </div>
-  <body>
-  <h1>Back home</h1>
-	<a href="index.html">About</a>
-</body>
 
 </body>
 </html>

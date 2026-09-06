@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jane Photography — Vowza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #FAF6F1;
+    --ink: #2B2620;
+    --ink-soft: #6B6156;
+    --evergreen: #33503F;
+    --evergreen-dark: #253A2D;
+    --blush: #E7B7B0;
+    --gold: #C9A227;
+    --border: #E5DED4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+  header.site { padding: 24px 0; border-bottom: 1px solid var(--border); }
+  .wordmark { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 36px;
+    padding: 40px 0;
+    align-items: center;
+  }
+  .hero img { width: 100%; border-radius: 12px; aspect-ratio: 4/3; object-fit: cover; }
+  .hero .category { font-size: 13px; color: var(--ink-soft); }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 38px;
+    margin: 6px 0 10px;
+  }
+  .hero .location { font-size: 14px; color: var(--ink-soft); margin-bottom: 14px; }
+  .hero .rating { font-size: 14px; margin-bottom: 18px; }
+  .hero .rating .stars { color: var(--gold); }
+  .hero p.about { font-size: 15px; line-height: 1.6; color: var(--ink); }
+  .cta-row { display: flex; gap: 12px; margin-top: 20px; }
+  .btn {
+    padding: 13px 26px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--evergreen);
+  }
+  .btn.primary { background: var(--evergreen); color: #fff; }
+  .btn.primary:hover { background: var(--evergreen-dark); }
+  .btn.ghost { background: #fff; color: var(--evergreen); }
+
+  section.block { padding: 36px 0; border-top: 1px solid var(--border); }
+  section.block h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 26px;
+    margin: 0 0 18px;
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 120px;
+    gap: 10px;
+  }
+  .gallery img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+  .gallery .tall { grid-row: span 2; }
+  .gallery .wide { grid-column: span 2; }
+
+  .services { list-style: none; padding: 0; margin: 0; font-size: 15px; }
+  .services li { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .services li:last-child { border-bottom: none; }
+
+  .package {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .package:last-child { border-bottom: none; }
+  .package.recommended { border-left: 3px solid var(--evergreen); padding-left: 16px; }
+  .package .name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; }
+  .package .desc { font-size: 13px; color: var(--ink-soft); margin-top: 4px; max-width: 460px; }
+  .package .price { font-size: 18px; font-weight: 600; white-space: nowrap; }
+
+  .avail-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    max-width: 420px;
+  }
+  .avail-grid div {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: #E9E3D8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .avail-grid div.open { background: var(--evergreen); color: #fff; }
+  .avail-grid div.booked { background: #D8CFC0; color: #A79C87; }
+
+  .review { padding: 20px 0; border-bottom: 1px solid var(--border); }
+  .review:last-child { border-bottom: none; }
+  .review .stars { color: var(--gold); font-size: 14px; margin-bottom: 6px; }
+  .review p { margin: 0 0 8px; font-size: 15px; line-height: 1.55; }
+  .review .name { font-size: 13px; color: var(--ink-soft); }
+
+  @media (max-width: 700px) {
+    .hero { grid-template-columns: 1fr; }
+    .gallery { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+  <header class="site">
+    <div class="wrap"><div class="wordmark">Vowza</div></div>
+  </header>
+
+  <div class="wrap">
+    <div class="hero">
+      <img src="https://picsum.photos/seed/vowza-photo1/700/525" alt="Jane Photography cover image">
+      <div>
+        <div class="category">Photography</div>
+        <h1>Jane Photography</h1>
+        <div class="location">Melbourne, VIC · Travels up to 100km</div>
+        <div class="rating"><span class="stars">★★★★★</span> 4.9 (86 reviews)</div>
+        <p class="about">Documentary-style wedding photography with a focus on candid, unposed moments. Based in Melbourne, available for weddings across Victoria.</p>
+        <div class="cta-row">
+          <div class="btn primary">Request to Book</div>
+          <div class="btn ghost">♥ Save</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="block">
+      <h2>Portfolio</h2>
+      <div class="gallery">
+        <img class="tall" src="https://picsum.photos/seed/vowza-g1/300/600" alt="Portfolio image 1">
+        <img src="https://picsum.photos/seed/vowza-g2/300/300" alt="Portfolio image 2">
+        <img class="wide" src="https://picsum.photos/seed/vowza-g3/600/300" alt="Portfolio image 3">
+        <img src="https://picsum.photos/seed/vowza-g4/300/300" alt="Portfolio image 4">
+        <img src="https://picsum.photos/seed/vowza-g5/300/300" alt="Portfolio image 5">
+        <img class="tall" src="https://picsum.photos/seed/vowza-g6/300/600" alt="Portfolio image 6">
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Services</h2>
+      <ul class="services">
+        <li>Full-day wedding photography</li>
+        <li>Engagement shoots</li>
+        <li>Second photographer add-on</li>
+        <li>Same-day photo previews</li>
+      </ul>
+    </section>
+
+    <section class="block">
+      <h2>Packages</h2>
+      <div class="package">
+        <div>
+          <div class="name">Essential Package</div>
+          <div class="desc">6 hours coverage, 1 photographer, online gallery</div>
+        </div>
+        <div class="price">$1,500</div>
+      </div>
+      <div class="package recommended">
+        <div>
+          <div class="name">Premium Package</div>
+          <div class="desc">10 hours coverage, 2 photographers, engagement shoot, online gallery</div>
+        </div>
+        <div class="price">$2,500</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Availability — February 2027</h2>
+      <div class="avail-grid">
+        <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+        <div class="open">1</div><div class="open">2</div><div class="booked">3</div><div class="open">4</div>
+        <div class="open">5</div><div class="booked">6</div><div class="open">7</div>
+        <div class="open">8</div><div class="open">9</div><div class="open">10</div><div class="open">11</div>
+        <div class="open">12</div><div class="open">13</div><div class="open">14</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Reviews</h2>
+      <div class="review">
+        <div class="stars">★★★★★</div>
+        <p>Jane made us feel completely at ease all day. The photos captured moments we didn't even realise she'd taken.</p>
+        <div class="name">Sasha & Filip, married November 2026</div>
+      </div>
+      <div class="review">
+        <div class="stars">★★★★★</div>
+        <p>Professional, punctual, and the gallery was ready within a week. Couldn't recommend more highly.</p>
+        <div class="name">Riley & Morgan, married June 2026</div>
+      </div>
+    </section>
+  </div>
+  <body>
+  <h1>Back home</h1>
+	<a href="index.html">Home Page</a>
+</body>
+
+</body>
+</html>
