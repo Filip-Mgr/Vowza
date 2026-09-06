@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 </head>
 <body>
@@ -152,7 +152,7 @@
       var profileId = localStorage.getItem('vowzaProfileId');
       if (!profileId) return; // no profile yet — just show the page's defaults
 
-      var result = await supabase
+      var result = await supabaseClient
         .from('wedding_profiles')
         .select('*')
         .eq('id', profileId)
