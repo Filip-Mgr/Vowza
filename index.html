@@ -1,54 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Welcome to Vowza</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fdf6f0;
-      text-align: center;
-      padding: 50px;
-    }
-    img {
-      width: 200px;
-      border-radius: 50%;
-      border: 4px solid #2F5496;
-    }
-    h1 {
-      color: #2F5496;
-    }
-    p {
-      font-size: 18px;
-      color: #444;
-      max-width: 500px;
-      margin: 20px auto;
-      line-height: 1.5;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vowza — Less emailing. More celebrating.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #FAF6F1;
+    --ink: #2B2620;
+    --ink-soft: #6B6156;
+    --evergreen: #33503F;
+    --evergreen-dark: #253A2D;
+    --blush: #E7B7B0;
+    --gold: #C9A227;
+    --border: #E5DED4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+  }
+  a { text-decoration: none; color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  header.site {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  header.site .wrap { display: flex; align-items: center; justify-content: space-between; }
+  .wordmark { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; }
+  nav a { font-size: 14px; margin-left: 24px; color: var(--ink-soft); }
+  nav a:hover { color: var(--evergreen); }
+
+  .hero {
+    text-align: center;
+    padding: 90px 24px 70px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 52px;
+    max-width: 640px;
+    margin: 0 auto 18px;
+    line-height: 1.15;
+  }
+  .hero p {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 460px;
+    margin: 0 auto 34px;
+  }
+  .hero .cta-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    display: inline-block;
+    padding: 14px 30px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--evergreen);
+  }
+  .btn.primary { background: var(--evergreen); color: #fff; }
+  .btn.primary:hover { background: var(--evergreen-dark); }
+  .btn.ghost { background: #fff; color: var(--evergreen); }
+  .btn.ghost:hover { background: var(--blush); border-color: var(--blush); color: var(--ink); }
+
+  section.steps { padding: 20px 0 70px; }
+  .steps .wrap {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  .step { text-align: center; }
+  .step .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 600;
+    color: var(--evergreen);
+    margin-bottom: 8px;
+  }
+  .step h3 { font-size: 16px; margin: 0 0 8px; }
+  .step p { font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0; }
+
+  section.featured {
+    padding: 60px 0 80px;
+    border-top: 1px solid var(--border);
+  }
+  .featured .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 26px;
+  }
+  .featured h2 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 28px; margin: 0; }
+  .featured .head a { font-size: 14px; color: var(--evergreen); }
+  .featured .head a:hover { text-decoration: underline; }
+
+  .mini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+  }
+  .mini-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .mini-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(43,38,32,0.08); }
+  .mini-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+  .mini-card .body { padding: 16px; }
+  .mini-card .category { font-size: 12px; color: var(--ink-soft); }
+  .mini-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 600; margin: 4px 0 6px; }
+  .mini-card .meta { font-size: 13px; color: var(--ink-soft); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 30px 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 36px; }
+    .steps .wrap { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-  <img src="photo.jpg" alt="This is me">
-  <h1>Vowza</h1>
-  <p>Lets get started with Vowza</p>
+
+  <header class="site">
+    <div class="wrap">
+      <div class="wordmark">Vowza</div>
+      <nav>
+        <a href="supplier-list.html">Browse suppliers</a>
+        <a href="supplier-profile.html">Sample profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Find suppliers who fit your date, style and budget — and book them in one place.</h1>
+    <p>Less emailing. More celebrating.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="supplier-list.html">Browse Suppliers</a>
+      <a class="btn ghost" href="supplier-profile.html">View a Sample Profile</a>
+    </div>
+  </section>
+
+  <section class="steps">
+    <div class="wrap">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Discover</h3>
+        <p>Search suppliers filtered by your wedding date, location and budget.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Compare</h3>
+        <p>View portfolios, packages and reviews side by side, save your favourites.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Book</h3>
+        <p>Send a booking request and manage everything from one dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="featured">
+    <div class="wrap">
+      <div class="head">
+        <h2>Featured suppliers</h2>
+        <a href="supplier-list.html">See all →</a>
+      </div>
+      <div class="mini-grid">
+        <a class="mini-card" href="supplier-profile.html">
+          <img src="https://picsum.photos/seed/vowza-photo1/600/450" alt="Jane Photography portfolio image">
+          <div class="body">
+            <div class="category">Photography</div>
+            <h3>Jane Photography</h3>
+            <div class="meta">Melbourne · From $2,500</div>
+          </div>
+        </a>
+        <a class="mini-card" href="supplier-list.html">
+          <img src="https://picsum.photos/seed/vowza-florist1/600/450" alt="Bloom & Co florist portfolio image">
+          <div class="body">
+            <div class="category">Florist</div>
+            <h3>Bloom & Co</h3>
+            <div class="meta">Geelong · From $850</div>
+          </div>
+        </a>
+        <a class="mini-card" href="supplier-list.html">
+          <img src="https://picsum.photos/seed/vowza-hmu1/600/450" alt="Studio Belle hair and makeup portfolio image">
+          <div class="body">
+            <div class="category">Hair & Makeup</div>
+            <h3>Studio Belle</h3>
+            <div class="meta">Melbourne · From $480</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Vowza — Less emailing. More celebrating.
+  </footer>
+
 </body>
-<ul>
-  <li>Photography</li>
-  <li>Florist</li>
-  <li>DJ</li>
-  <li>Hair & Makeup</li>
-</ul>
-<body>
-  <h1>Find out more</h1>
-	<a href="about.html">About</a>
-</body>
-<body>
-  <h1>Explore the suppliers</h1>
-	<a href="suppliers-profile.html">About</a>
-</body>
-<body>
-  <h1>Explore the suppliers listing</h1>
-	<a href="supplier-list.html">About</a>
-</body>
-<a href="https://github.com/filip-mgr/vowza">View this project on GitHub</a>
 </html>
