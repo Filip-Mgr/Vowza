@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vowza — Find your suppliers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #FAF6F1;
+    --ink: #2B2620;
+    --ink-soft: #6B6156;
+    --evergreen: #33503F;
+    --evergreen-dark: #253A2D;
+    --blush: #E7B7B0;
+    --gold: #C9A227;
+    --border: #E5DED4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  header.site {
+    padding: 28px 0 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  header.site .wrap { display: flex; align-items: baseline; justify-content: space-between; }
+  .wordmark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .tagline { font-size: 13px; color: var(--ink-soft); }
+
+  .intro { padding: 40px 0 24px; }
+  .intro h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 36px;
+    max-width: 560px;
+    line-height: 1.15;
+    margin: 0 0 8px;
+  }
+  .intro p { color: var(--ink-soft); font-size: 15px; max-width: 480px; }
+
+  .filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 32px;
+  }
+  .filters span {
+    font-size: 13px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--ink-soft);
+    background: #fff;
+  }
+  .filters span.active {
+    background: var(--evergreen);
+    color: #fff;
+    border-color: var(--evergreen);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 28px;
+    padding-bottom: 60px;
+  }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(43,38,32,0.08);
+  }
+  .card .photo {
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card .body { padding: 18px 18px 20px; }
+  .card .category { font-size: 12px; color: var(--ink-soft); }
+  .card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 4px 0 6px;
+  }
+  .card .meta {
+    font-size: 13px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .card .rating { font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+  .card .rating .stars { color: var(--gold); }
+  .card .availability {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--evergreen); display: inline-block; }
+  .dot.grey { background: #C9C2B5; }
+
+  .card .actions { display: flex; gap: 10px; }
+  .btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--evergreen);
+  }
+  .btn.primary { background: var(--evergreen); color: #fff; }
+  .btn.primary:hover { background: var(--evergreen-dark); }
+  .btn.ghost { background: #fff; color: var(--evergreen); }
+  .btn.ghost:hover { background: var(--blush); border-color: var(--blush); color: var(--ink); }
+
+  @media (max-width: 640px) {
+    .intro h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="site">
+    <div class="wrap">
+      <div>
+        <div class="wordmark">Vowza</div>
+        <div class="tagline">Less emailing. More celebrating.</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="intro wrap">
+    <h1>Suppliers available for 14 February 2027</h1>
+    <p>Matched to your wedding date, guest count and budget in Melbourne.</p>
+  </section>
+
+  <div class="wrap">
+    <div class="filters">
+      <span class="active">All categories</span>
+      <span>Photography</span>
+      <span>Florist</span>
+      <span>DJ</span>
+      <span>Hair & Makeup</span>
+      <span>Available on my date</span>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="grid">
+
+      <div class="card">
+        <img class="photo" src="https://picsum.photos/seed/vowza-photo1/600/450" alt="Jane Photography portfolio image">
+        <div class="body">
+          <div class="category">Photography</div>
+          <h3>Jane Photography</h3>
+          <div class="meta"><span>Melbourne</span><span>From $2,500</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 4.9 (86 reviews)</div>
+          <div class="availability"><span class="dot"></span> Available on your date</div>
+          <div class="actions">
+            <div class="btn primary">View Profile</div>
+            <div class="btn ghost">♥ Save</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <img class="photo" src="https://picsum.photos/seed/vowza-florist1/600/450" alt="Bloom & Co florist portfolio image">
+        <div class="body">
+          <div class="category">Florist</div>
+          <h3>Bloom & Co</h3>
+          <div class="meta"><span>Geelong</span><span>From $850</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 4.8 (52 reviews)</div>
+          <div class="availability"><span class="dot"></span> Available on your date</div>
+          <div class="actions">
+            <div class="btn primary">View Profile</div>
+            <div class="btn ghost">♥ Save</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <img class="photo" src="https://picsum.photos/seed/vowza-dj1/600/450" alt="DJ Marco portfolio image">
+        <div class="body">
+          <div class="category">DJ</div>
+          <h3>DJ Marco Live</h3>
+          <div class="meta"><span>Melbourne</span><span>From $1,100</span></div>
+          <div class="rating"><span class="stars">★★★★☆</span> 4.6 (34 reviews)</div>
+          <div class="availability"><span class="dot grey"></span> Booked on your date</div>
+          <div class="actions">
+            <div class="btn primary">View Profile</div>
+            <div class="btn ghost">♥ Save</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <img class="photo" src="https://picsum.photos/seed/vowza-hmu1/600/450" alt="Studio Belle hair and makeup portfolio image">
+        <div class="body">
+          <div class="category">Hair & Makeup</div>
+          <h3>Studio Belle</h3>
+          <div class="meta"><span>Melbourne</span><span>From $480</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 5.0 (61 reviews)</div>
+          <div class="availability"><span class="dot"></span> Available on your date</div>
+          <div class="actions">
+            <div class="btn primary">View Profile</div>
+            <div class="btn ghost">♥ Save</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <img class="photo" src="https://picsum.photos/seed/vowza-video1/600/450" alt="Reel Moments videography portfolio image">
+        <div class="body">
+          <div class="category">Videography</div>
+          <h3>Reel Moments</h3>
+          <div class="meta"><span>Ballarat</span><span>From $1,900</span></div>
+          <div class="rating"><span class="stars">★★★★☆</span> 4.7 (29 reviews)</div>
+          <div class="availability"><span class="dot"></span> Available on your date</div>
+          <div class="actions">
+            <div class="btn primary">View Profile</div>
+            <div class="btn ghost">♥ Save</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <img class="photo" src="https://picsum.photos/seed/vowza-celebrant1/600/450" alt="Celebrant Anna portfolio image">
+        <div class="body">
+          <div class="category">Celebrant</div>
+          <h3>Anna Hart, Celebrant</h3>
+          <div class="meta"><span>Melbourne</span><span>From $650</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 4.9 (40 reviews)</div>
+          <div class="availability"><span class="dot"></span> Available on your date</div>
+          <div class="actions">
+            <div class="btn primary">View Profile</div>
+            <div class="btn ghost">♥ Save</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+  <body>
+  <h1>Back home</h1>
+	<a href="index.html">About</a>
+</body>
+</html>
