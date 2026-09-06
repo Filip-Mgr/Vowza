@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
 </head>
 <body>
   <header class="site">
@@ -45,31 +47,54 @@
   </footer>
 
   <script>
-    // On page load: if a wedding profile was saved earlier (from
-    // wedding-setup.html), pre-fill this form with it instead of
-    // showing generic placeholder values.
-    var saved = localStorage.getItem('vowzaWeddingProfile');
-    if (saved) {
-      var profile = JSON.parse(saved);
-      if (profile.date) document.getElementById('profileDate').value = profile.date;
+    // On page load: if this browser already has a saved profile,
+    // fetch it from Supabase and pre-fill the form with it.
+    (async function () {
+      var profileId = localStorage.getItem('vowzaProfileId');
+      if (!profileId) return;
+
+      var result = await supabase
+        .from('wedding_profiles')
+        .select('*')
+        .eq('id', profileId)
+        .single();
+
+      if (result.error || !result.data) return;
+      var profile = result.data;
+
+      if (profile.wedding_date) document.getElementById('profileDate').value = profile.wedding_date;
       if (profile.location) document.getElementById('profileLocation').value = profile.location;
       if (profile.guests) document.getElementById('profileGuests').value = profile.guests;
       if (profile.budget) document.getElementById('profileBudget').value = profile.budget;
-    }
+    })();
 
-    // On save: write the (possibly edited) values back to the same
-    // localStorage key, so every other page stays in sync with any
-    // changes made here.
-    document.getElementById('profileForm').addEventListener('submit', function (e) {
+    // On save: update the existing row if we have one, otherwise
+    // create a new row (covers someone reaching this page without
+    // going through wedding-setup.html first).
+    document.getElementById('profileForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      var existing = JSON.parse(localStorage.getItem('vowzaWeddingProfile') || '{}');
-      existing.date = document.getElementById('profileDate').value;
-      existing.location = document.getElementById('profileLocation').value;
-      existing.guests = document.getElementById('profileGuests').value;
-      existing.budget = document.getElementById('profileBudget').value;
+      var fields = {
+        wedding_date: document.getElementById('profileDate').value,
+        location: document.getElementById('profileLocation').value,
+        guests: document.getElementById('profileGuests').value,
+        budget: document.getElementById('profileBudget').value
+      };
 
-      localStorage.setItem('vowzaWeddingProfile', JSON.stringify(existing));
+      var profileId = localStorage.getItem('vowzaProfileId');
+      var result;
+
+      if (profileId) {
+        result = await supabase.from('wedding_profiles').update(fields).eq('id', profileId);
+      } else {
+        result = await supabase.from('wedding_profiles').insert(fields).select().single();
+        if (!result.error) localStorage.setItem('vowzaProfileId', result.data.id);
+      }
+
+      if (result.error) {
+        alert('Something went wrong saving your details: ' + result.error.message);
+        return;
+      }
 
       document.getElementById('savedMessage').style.display = 'block';
     });

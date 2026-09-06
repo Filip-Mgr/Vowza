@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<!-- The Supabase library itself, then our shared connection setup -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
 </head>
 <body>
   <header class="site">
@@ -71,11 +74,16 @@
        1. Stops the browser's default "reload the page" behaviour
        2. Reads every field's current value
        3. Collects all the CHECKED checkboxes into a list
-       4. Saves everything as one object in localStorage
-       5. Sends the person on to the supplier list
+       4. Saves everything as one new row in the Supabase database
+       5. Remembers just the new row's ID in localStorage, so THIS
+          browser can find its own submission again later
+       6. Sends the person on to the supplier list
        ============================================ -->
   <script>
-    document.getElementById('weddingForm').addEventListener('submit', function (e) {
+    // "async" lets us use "await" inside — which pauses this function
+    // until the database call actually finishes, instead of moving on
+    // before we know whether it worked.
+    document.getElementById('weddingForm').addEventListener('submit', async function (e) {
       e.preventDefault(); // stop the form from doing a normal page reload
 
       // Find every checked checkbox named "category" and grab its value
@@ -84,19 +92,31 @@
         selectedCategories.push(box.value);
       });
 
-      // Build one plain JavaScript object holding all the answers
-      var weddingProfile = {
-        date: document.getElementById('weddingDate').value,
-        location: document.getElementById('weddingLocation').value,
-        guests: document.getElementById('guestCount').value,
-        budget: document.getElementById('weddingBudget').value,
-        categories: selectedCategories
-      };
+      // Insert one new row into the wedding_profiles table.
+      // .select().single() asks Supabase to hand back the row it just
+      // created (including its auto-generated id) instead of nothing.
+      var result = await supabase
+        .from('wedding_profiles')
+        .insert({
+          wedding_date: document.getElementById('weddingDate').value,
+          location: document.getElementById('weddingLocation').value,
+          guests: document.getElementById('guestCount').value,
+          budget: document.getElementById('weddingBudget').value,
+          categories: selectedCategories.join(',') // stored as one text field, comma-separated
+        })
+        .select()
+        .single();
 
-      // localStorage can only store TEXT, so JSON.stringify() converts
-      // our object into a text string first. It's saved under the key
-      // "vowzaWeddingProfile" — any page can look it up by that same name.
-      localStorage.setItem('vowzaWeddingProfile', JSON.stringify(weddingProfile));
+      if (result.error) {
+        // If something's misconfigured (e.g. the RLS policies from
+        // earlier), this shows up here instead of failing silently.
+        alert('Something went wrong saving your details: ' + result.error.message);
+        return;
+      }
+
+      // Remember which row belongs to THIS browser, so other pages
+      // can look up the same profile again (not everyone else's).
+      localStorage.setItem('vowzaProfileId', result.data.id);
 
       // Now move on to the supplier list page
       window.location.href = 'supplier-list.html';

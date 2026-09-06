@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
 </head>
 <body>
   <header class="site">
@@ -67,14 +69,22 @@
   </footer>
 
   <script>
-    // Same pattern as supplier-list.html — read the saved profile,
-    // and if it exists, replace the placeholder date/location text.
-    var saved = localStorage.getItem('vowzaWeddingProfile');
-    if (saved) {
-      var profile = JSON.parse(saved);
+    (async function () {
+      var profileId = localStorage.getItem('vowzaProfileId');
+      if (!profileId) return;
+
+      var result = await supabase
+        .from('wedding_profiles')
+        .select('*')
+        .eq('id', profileId)
+        .single();
+
+      if (result.error || !result.data) return;
+      var profile = result.data;
+
       var parts = [];
-      if (profile.date) {
-        parts.push(new Date(profile.date + 'T00:00:00').toLocaleDateString('en-AU', {
+      if (profile.wedding_date) {
+        parts.push(new Date(profile.wedding_date + 'T00:00:00').toLocaleDateString('en-AU', {
           day: 'numeric', month: 'long', year: 'numeric'
         }));
       }
@@ -82,7 +92,7 @@
       if (parts.length > 0) {
         document.getElementById('weddingSummary').textContent = parts.join(' · ');
       }
-    }
+    })();
   </script>
 
 </body>
