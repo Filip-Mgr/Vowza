@@ -24,7 +24,7 @@
 
   <section class="page-head wrap">
     <h1>My Wedding</h1>
-    <p>14 February 2027 · Melbourne, VIC</p>
+    <p id="weddingSummary">14 February 2027 · Melbourne, VIC</p>
   </section>
 
   <div class="wrap" style="padding-bottom:20px;">
@@ -65,6 +65,25 @@
   <footer>
     Vowza — Less emailing. More celebrating.
   </footer>
+
+  <script>
+    // Same pattern as supplier-list.html — read the saved profile,
+    // and if it exists, replace the placeholder date/location text.
+    var saved = localStorage.getItem('vowzaWeddingProfile');
+    if (saved) {
+      var profile = JSON.parse(saved);
+      var parts = [];
+      if (profile.date) {
+        parts.push(new Date(profile.date + 'T00:00:00').toLocaleDateString('en-AU', {
+          day: 'numeric', month: 'long', year: 'numeric'
+        }));
+      }
+      if (profile.location) parts.push(profile.location);
+      if (parts.length > 0) {
+        document.getElementById('weddingSummary').textContent = parts.join(' · ');
+      }
+    }
+  </script>
 
 </body>
 </html>

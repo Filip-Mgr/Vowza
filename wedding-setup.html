@@ -21,43 +21,87 @@
   </section>
 
   <div class="wrap" style="padding-bottom:60px;">
-    <form class="form-card">
+    <!-- The form now has an id so our JavaScript below can find it,
+         and every field that needs to be saved has its own id too. -->
+    <form class="form-card" id="weddingForm">
       <div class="field">
         <label>What's your wedding date?</label>
-        <input type="date">
+        <input type="date" id="weddingDate">
       </div>
       <div class="field">
         <label>Where are you getting married?</label>
-        <input type="text" placeholder="e.g. Melbourne, VIC">
+        <input type="text" id="weddingLocation" placeholder="e.g. Melbourne, VIC">
       </div>
       <div class="field">
         <label>How many guests are you expecting?</label>
-        <input type="number" placeholder="e.g. 90">
+        <input type="number" id="guestCount" placeholder="e.g. 90">
       </div>
       <div class="field">
         <label>What's your approximate wedding budget?</label>
-        <input type="text" placeholder="e.g. $35,000">
+        <input type="text" id="weddingBudget" placeholder="e.g. $35,000">
       </div>
       <div class="field">
         <label>What suppliers are you looking for?</label>
+        <!-- Every checkbox shares name="category" (so JavaScript can find
+             them all at once) and has a "value" matching its label text
+             exactly — that's what gets saved and matched up later. -->
         <div class="checkbox-grid">
-          <label><input type="checkbox"> Hair &amp; Makeup</label>
-          <label><input type="checkbox"> Photography</label>
-          <label><input type="checkbox"> Videography</label>
-          <label><input type="checkbox"> Florist</label>
-          <label><input type="checkbox"> DJ</label>
-          <label><input type="checkbox"> Music</label>
-          <label><input type="checkbox"> Celebrant</label>
-          <label><input type="checkbox"> Cake</label>
-          <label><input type="checkbox"> Styling &amp; Décor</label>
-          <label><input type="checkbox"> Wedding Cars</label>
-          <label><input type="checkbox"> Content Creator</label>
-          <label><input type="checkbox"> Wedding Planner</label>
+          <label><input type="checkbox" name="category" value="Hair & Makeup"> Hair &amp; Makeup</label>
+          <label><input type="checkbox" name="category" value="Photography"> Photography</label>
+          <label><input type="checkbox" name="category" value="Videography"> Videography</label>
+          <label><input type="checkbox" name="category" value="Florist"> Florist</label>
+          <label><input type="checkbox" name="category" value="DJ"> DJ</label>
+          <label><input type="checkbox" name="category" value="Music"> Music</label>
+          <label><input type="checkbox" name="category" value="Celebrant"> Celebrant</label>
+          <label><input type="checkbox" name="category" value="Cake"> Cake</label>
+          <label><input type="checkbox" name="category" value="Styling & Décor"> Styling &amp; Décor</label>
+          <label><input type="checkbox" name="category" value="Wedding Cars"> Wedding Cars</label>
+          <label><input type="checkbox" name="category" value="Content Creator"> Content Creator</label>
+          <label><input type="checkbox" name="category" value="Wedding Planner"> Wedding Planner</label>
         </div>
       </div>
-      <a class="btn primary full" href="supplier-list.html">Continue</a>
+      <!-- Changed from a plain link to a real submit button, so we can
+           run our own code first (save the data) before moving pages. -->
+      <button type="submit" class="btn primary full">Continue</button>
     </form>
   </div>
+
+  <!-- ============================================
+       JAVASCRIPT: runs when the form is submitted.
+       1. Stops the browser's default "reload the page" behaviour
+       2. Reads every field's current value
+       3. Collects all the CHECKED checkboxes into a list
+       4. Saves everything as one object in localStorage
+       5. Sends the person on to the supplier list
+       ============================================ -->
+  <script>
+    document.getElementById('weddingForm').addEventListener('submit', function (e) {
+      e.preventDefault(); // stop the form from doing a normal page reload
+
+      // Find every checked checkbox named "category" and grab its value
+      var selectedCategories = [];
+      document.querySelectorAll('input[name="category"]:checked').forEach(function (box) {
+        selectedCategories.push(box.value);
+      });
+
+      // Build one plain JavaScript object holding all the answers
+      var weddingProfile = {
+        date: document.getElementById('weddingDate').value,
+        location: document.getElementById('weddingLocation').value,
+        guests: document.getElementById('guestCount').value,
+        budget: document.getElementById('weddingBudget').value,
+        categories: selectedCategories
+      };
+
+      // localStorage can only store TEXT, so JSON.stringify() converts
+      // our object into a text string first. It's saved under the key
+      // "vowzaWeddingProfile" — any page can look it up by that same name.
+      localStorage.setItem('vowzaWeddingProfile', JSON.stringify(weddingProfile));
+
+      // Now move on to the supplier list page
+      window.location.href = 'supplier-list.html';
+    });
+  </script>
 
   <footer>
     Vowza — Less emailing. More celebrating.

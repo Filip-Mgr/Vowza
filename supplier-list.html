@@ -24,12 +24,12 @@
   </header>
 
   <section class="page-head wrap">
-    <h1>Suppliers available for 14 February 2027</h1>
+    <h1 id="pageDate">Suppliers available for 14 February 2027</h1>
     <p>Matched to your wedding date, guest count and budget in Melbourne.</p>
   </section>
 
   <div class="wrap">
-    <div class="filters">
+    <div class="filters" id="filterChips">
       <span class="active">All categories</span>
       <span>Photography</span>
       <span>Florist</span>
@@ -138,6 +138,44 @@
   <footer>
     Vowza — Less emailing. More celebrating.
   </footer>
+
+  <!-- ============================================
+       JAVASCRIPT: runs as soon as this page loads.
+       Looks up whatever was saved by wedding-setup.html and,
+       if it exists, updates this page to reflect it.
+       ============================================ -->
+  <script>
+    // getItem returns the saved text, or null if nothing was ever saved
+    // (e.g. someone visited this page directly without filling the form)
+    var saved = localStorage.getItem('vowzaWeddingProfile');
+
+    if (saved) {
+      // JSON.parse turns the saved text back into a real object we can use
+      var profile = JSON.parse(saved);
+
+      // Update the heading with the real wedding date, if one was entered
+      if (profile.date) {
+        var formatted = new Date(profile.date + 'T00:00:00').toLocaleDateString('en-AU', {
+          day: 'numeric', month: 'long', year: 'numeric'
+        });
+        document.getElementById('pageDate').textContent = 'Suppliers available for ' + formatted;
+      }
+
+      // Highlight only the filter chips matching categories they picked.
+      // If they picked at least one category, "All categories" turns off.
+      if (profile.categories && profile.categories.length > 0) {
+        var chips = document.querySelectorAll('#filterChips span');
+        chips.forEach(function (chip) {
+          chip.classList.remove('active');
+          if (profile.categories.indexOf(chip.textContent.trim()) !== -1) {
+            chip.classList.add('active');
+          }
+        });
+      }
+    }
+    // If nothing was saved yet, the page just shows its original
+    // placeholder content — nothing breaks either way.
+  </script>
 
 </body>
 </html>

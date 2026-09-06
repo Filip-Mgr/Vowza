@@ -54,6 +54,7 @@ nav a.active { font-weight: 600; }
 }
 .btn.primary { background: var(--evergreen); color: #fff; }
 .btn.primary:hover { background: var(--evergreen-dark); }
+button.btn { font: inherit; cursor: pointer; appearance: none; -webkit-appearance: none; }
 .btn.ghost { background: #fff; color: var(--evergreen); }
 .btn.ghost:hover { background: var(--blush); border-color: var(--blush); color: var(--ink); }
 .btn.small { padding: 8px 16px; font-size: 13px; }

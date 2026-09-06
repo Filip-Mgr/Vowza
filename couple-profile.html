@@ -27,21 +27,53 @@
   </section>
 
   <div class="wrap" style="padding-bottom:60px;">
-    <form class="form-card" style="max-width:640px;">
-      <div class="field"><label>Name</label><input type="text" value="Sasha &amp; Filip"></div>
-      <div class="field"><label>Email</label><input type="email" value="sasha.filip@email.com"></div>
-      <div class="field"><label>Phone</label><input type="text" value="0400 000 000"></div>
-      <div class="field"><label>Wedding date</label><input type="text" value="14 February 2027"></div>
-      <div class="field"><label>Wedding location</label><input type="text" value="Melbourne, VIC"></div>
-      <div class="field"><label>Guest numbers</label><input type="text" value="90"></div>
-      <div class="field"><label>Budget</label><input type="text" value="$35,000"></div>
-      <a class="btn primary full" href="couple-profile.html">Save Changes</a>
+    <form class="form-card" style="max-width:640px;" id="profileForm">
+      <div class="field"><label>Name</label><input type="text" id="coupleName" value="Sasha &amp; Filip"></div>
+      <div class="field"><label>Email</label><input type="email" id="coupleEmail" value="sasha.filip@email.com"></div>
+      <div class="field"><label>Phone</label><input type="text" id="couplePhone" value="0400 000 000"></div>
+      <div class="field"><label>Wedding date</label><input type="date" id="profileDate"></div>
+      <div class="field"><label>Wedding location</label><input type="text" id="profileLocation" value="Melbourne, VIC"></div>
+      <div class="field"><label>Guest numbers</label><input type="text" id="profileGuests" value="90"></div>
+      <div class="field"><label>Budget</label><input type="text" id="profileBudget" value="$35,000"></div>
+      <button type="submit" class="btn primary full">Save Changes</button>
+      <p id="savedMessage" style="text-align:center; color:var(--evergreen); font-size:13px; margin-top:12px; display:none;">Saved!</p>
     </form>
   </div>
 
   <footer>
     Vowza — Less emailing. More celebrating.
   </footer>
+
+  <script>
+    // On page load: if a wedding profile was saved earlier (from
+    // wedding-setup.html), pre-fill this form with it instead of
+    // showing generic placeholder values.
+    var saved = localStorage.getItem('vowzaWeddingProfile');
+    if (saved) {
+      var profile = JSON.parse(saved);
+      if (profile.date) document.getElementById('profileDate').value = profile.date;
+      if (profile.location) document.getElementById('profileLocation').value = profile.location;
+      if (profile.guests) document.getElementById('profileGuests').value = profile.guests;
+      if (profile.budget) document.getElementById('profileBudget').value = profile.budget;
+    }
+
+    // On save: write the (possibly edited) values back to the same
+    // localStorage key, so every other page stays in sync with any
+    // changes made here.
+    document.getElementById('profileForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var existing = JSON.parse(localStorage.getItem('vowzaWeddingProfile') || '{}');
+      existing.date = document.getElementById('profileDate').value;
+      existing.location = document.getElementById('profileLocation').value;
+      existing.guests = document.getElementById('profileGuests').value;
+      existing.budget = document.getElementById('profileBudget').value;
+
+      localStorage.setItem('vowzaWeddingProfile', JSON.stringify(existing));
+
+      document.getElementById('savedMessage').style.display = 'block';
+    });
+  </script>
 
 </body>
 </html>
