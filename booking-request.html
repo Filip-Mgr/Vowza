@@ -7,8 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 </head>
-<body>
+<body style="visibility:hidden;">
   <header class="site">
     <div class="wrap">
       <a class="wordmark" href="index.html">Vowza</a>
@@ -24,42 +26,113 @@
 
   <section class="page-head wrap" style="text-align:center;">
     <h1>Request to Book</h1>
-    <p>Jane Photography &mdash; Premium Package</p>
+    <p id="supplierSummary">Jane Photography — Premium Package</p>
   </section>
 
   <div class="wrap" style="padding-bottom:60px;">
-    <form class="form-card">
+    <form class="form-card" id="bookingForm">
       <div class="field">
         <label>Wedding date</label>
-        <input type="text" value="14 February 2027" readonly>
+        <input type="date" id="bookingDate">
       </div>
       <div class="field">
         <label>Wedding location</label>
-        <input type="text" value="Melbourne, VIC">
+        <input type="text" id="bookingLocation" placeholder="e.g. Melbourne, VIC">
       </div>
       <div class="field">
         <label>Supplier / package selected</label>
-        <input type="text" value="Jane Photography &mdash; Premium Package ($2,500)" readonly>
+        <input type="text" id="supplierPackageDisplay" readonly>
       </div>
       <div class="field">
         <label>Number of guests</label>
-        <input type="number" value="90">
+        <input type="number" id="bookingGuests" placeholder="e.g. 90">
       </div>
       <div class="field">
         <label>Preferred time</label>
-        <input type="text" placeholder="e.g. Ceremony at 3pm">
+        <input type="text" id="bookingTime" placeholder="e.g. Ceremony at 3pm">
       </div>
       <div class="field">
         <label>Additional message</label>
-        <textarea placeholder="Anything Jane should know about your day?"></textarea>
+        <textarea id="bookingMessage" placeholder="Anything they should know about your day?"></textarea>
       </div>
-      <a class="btn primary full" href="booking-status.html">Send Booking Request</a>
+      <button type="submit" class="btn primary full">Send Booking Request</button>
+      <p id="bookingError" style="text-align:center; color:var(--red); font-size:13px; margin-top:12px; display:none;"></p>
     </form>
   </div>
 
   <footer>
     Vowza — Less emailing. More celebrating.
   </footer>
+
+  <script>
+    var currentUser = null;
+
+    // Read supplier/package details from the URL, e.g.
+    // booking-request.html?supplier=Jane%20Photography&category=Photography&package=Premium%20Package&price=2500
+    var params = new URLSearchParams(window.location.search);
+    var supplierName = params.get('supplier') || 'Jane Photography';
+    var category = params.get('category') || 'Photography';
+    var packageName = params.get('package') || 'Premium Package';
+    var packagePrice = params.get('price') || '2500';
+
+    document.getElementById('supplierSummary').textContent = supplierName + ' — ' + packageName;
+    document.getElementById('supplierPackageDisplay').value = supplierName + ' — ' + packageName + ' ($' + packagePrice + ')';
+
+    // AUTH GUARD + pre-fill from the couple's existing wedding profile,
+    // so they're not retyping their date/location/guests here.
+    (async function () {
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = userResult.data.user;
+
+      var result = await supabaseClient
+        .from('wedding_profiles')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+
+      if (!result.error && result.data) {
+        if (result.data.wedding_date) document.getElementById('bookingDate').value = result.data.wedding_date;
+        if (result.data.location) document.getElementById('bookingLocation').value = result.data.location;
+        if (result.data.guests) document.getElementById('bookingGuests').value = result.data.guests;
+      }
+
+      document.body.style.visibility = 'visible';
+    })();
+
+    document.getElementById('bookingForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      var errorMsg = document.getElementById('bookingError');
+      errorMsg.style.display = 'none';
+
+      var result = await supabaseClient.from('bookings').insert({
+        user_id: currentUser.id,
+        supplier_slug: params.get('slug') || supplierName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        supplier_name: supplierName,
+        category: category,
+        package_name: packageName,
+        package_price: packagePrice,
+        wedding_date: document.getElementById('bookingDate').value,
+        wedding_location: document.getElementById('bookingLocation').value,
+        guest_count: document.getElementById('bookingGuests').value,
+        preferred_time: document.getElementById('bookingTime').value,
+        message: document.getElementById('bookingMessage').value,
+        status: 'pending'
+      });
+
+      if (result.error) {
+        errorMsg.textContent = result.error.message;
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      window.location.href = 'booking-status.html';
+    });
+  </script>
 
 </body>
 </html>

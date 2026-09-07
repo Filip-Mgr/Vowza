@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <style>
   /* Page-specific: the two-column hero layout is only used here */
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 36px; padding: 40px 0; align-items: center; }
@@ -46,8 +48,8 @@
         <div class="rating"><span class="stars">★★★★★</span> 4.9 (86 reviews)</div>
         <p class="about">Documentary-style wedding photography with a focus on candid, unposed moments. Based in Melbourne, available for weddings across Victoria.</p>
         <div class="cta-row">
-          <a class="btn primary" href="booking-request.html">Request to Book</a>
-          <a class="btn ghost" href="shortlist.html">♥ Save</a>
+          <a class="btn primary" href="#packages">See Packages & Book</a>
+          <button type="button" class="btn ghost save-btn" data-slug="jane-photography" data-name="Jane Photography" data-category="Photography">♥ Save</button>
         </div>
       </div>
     </div>
@@ -77,21 +79,29 @@
       </ul>
     </section>
 
-    <section class="block">
+    <section class="block" id="packages">
       <h2>Packages</h2>
       <div class="package">
         <div>
           <div class="name">Essential Package</div>
           <div class="desc">6 hours coverage, 1 photographer, online gallery</div>
         </div>
-        <div class="price">$1,500</div>
+        <div style="text-align:right;">
+          <div class="price">$1,500</div>
+          <a class="btn primary small" style="margin-top:8px; display:inline-block;"
+             href="booking-request.html?slug=jane-photography&supplier=Jane%20Photography&category=Photography&package=Essential%20Package&price=1500">Request to Book</a>
+        </div>
       </div>
       <div class="package recommended">
         <div>
           <div class="name">Premium Package</div>
           <div class="desc">10 hours coverage, 2 photographers, engagement shoot, online gallery</div>
         </div>
-        <div class="price">$2,500</div>
+        <div style="text-align:right;">
+          <div class="price">$2,500</div>
+          <a class="btn primary small" style="margin-top:8px; display:inline-block;"
+             href="booking-request.html?slug=jane-photography&supplier=Jane%20Photography&category=Photography&package=Premium%20Package&price=2500">Request to Book</a>
+        </div>
       </div>
     </section>
 
@@ -124,6 +134,75 @@
   <footer>
     Vowza — Less emailing. More celebrating.
   </footer>
+
+  <script>
+    // Load current saved state for this one supplier (Jane Photography)
+    // on page open, then wire up the same save/unsave toggle used on
+    // supplier-list.html.
+    (async function () {
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) return;
+
+      var btn = document.querySelector('.save-btn');
+      var savedResult = await supabaseClient
+        .from('saved_suppliers')
+        .select('id')
+        .eq('user_id', userResult.data.user.id)
+        .eq('supplier_slug', btn.dataset.slug)
+        .maybeSingle();
+
+      if (savedResult.data) {
+        btn.textContent = '♥ Saved';
+        btn.classList.add('saved');
+      }
+    })();
+
+    document.querySelectorAll('.save-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var userResult = await supabaseClient.auth.getUser();
+        if (!userResult.data.user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        var userId = userResult.data.user.id;
+        var isSaved = btn.classList.contains('saved');
+
+        if (isSaved) {
+          btn.disabled = true;
+          var deleteResult = await supabaseClient
+            .from('saved_suppliers')
+            .delete()
+            .eq('user_id', userId)
+            .eq('supplier_slug', btn.dataset.slug);
+
+          btn.disabled = false;
+          if (deleteResult.error) {
+            alert('Could not remove: ' + deleteResult.error.message);
+            return;
+          }
+          btn.textContent = '♥ Save';
+          btn.classList.remove('saved');
+        } else {
+          btn.disabled = true;
+          var insertResult = await supabaseClient.from('saved_suppliers').insert({
+            user_id: userId,
+            supplier_slug: btn.dataset.slug,
+            supplier_name: btn.dataset.name,
+            category: btn.dataset.category
+          });
+
+          btn.disabled = false;
+          if (insertResult.error) {
+            alert('Could not save: ' + insertResult.error.message);
+            return;
+          }
+          btn.textContent = '♥ Saved';
+          btn.classList.add('saved');
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>

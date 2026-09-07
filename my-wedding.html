@@ -31,33 +31,8 @@
   </section>
 
   <div class="wrap" style="padding-bottom:20px;">
-    <div class="list-row">
-      <div class="info">
-        <h3>Photography</h3>
-        <p>Jane Photography &mdash; Premium Package</p>
-      </div>
-      <span class="status-badge confirmed">🟢 Booked</span>
-    </div>
-    <div class="list-row">
-      <div class="info">
-        <h3>Hair &amp; Makeup</h3>
-        <p>Studio Belle</p>
-      </div>
-      <span class="status-badge pending">🟡 Awaiting response</span>
-    </div>
-    <div class="list-row">
-      <div class="info">
-        <h3>Florist</h3>
-        <p>Bloom &amp; Co</p>
-      </div>
-      <span class="status-badge saved">❤ Saved</span>
-    </div>
-    <div class="list-row">
-      <div class="info">
-        <h3>DJ</h3>
-        <p>Not yet booked</p>
-      </div>
-      <span class="status-badge" style="background:#EFEAE0; color:var(--ink-soft);">⚪ Not booked</span>
+    <div id="weddingRows">
+      <p style="text-align:center; color:var(--ink-soft); padding:20px 0;">Loading…</p>
     </div>
   </div>
 
@@ -70,6 +45,17 @@
   </footer>
 
   <script>
+    function statusBadge(status) {
+      var map = {
+        pending: ['status-badge pending', '🟡 Awaiting response'],
+        accepted: ['status-badge accepted', '🟢 Accepted'],
+        confirmed: ['status-badge confirmed', '🟢 Booked'],
+        declined: ['status-badge declined', '🔴 Declined']
+      };
+      var s = map[status] || ['status-badge', status];
+      return '<span class="' + s[0] + '">' + s[1] + '</span>';
+    }
+
     // AUTH GUARD: this is personal data, so require login
     (async function () {
       var userResult = await supabaseClient.auth.getUser();
@@ -77,30 +63,72 @@
         window.location.href = 'login.html';
         return;
       }
+      var userId = userResult.data.user.id;
 
       // maybeSingle() (not single()) is used here deliberately — a
       // brand-new couple might not have completed Wedding Setup yet,
       // meaning zero rows exist. single() would treat that as an
       // error; maybeSingle() just returns null and we show defaults.
-      var result = await supabaseClient
+      var profileResult = await supabaseClient
         .from('wedding_profiles')
         .select('*')
-        .eq('user_id', userResult.data.user.id)
+        .eq('user_id', userId)
         .maybeSingle();
 
       document.body.style.visibility = 'visible';
-      if (result.error || !result.data) return;
-      var profile = result.data;
-
-      var parts = [];
-      if (profile.wedding_date) {
-        parts.push(new Date(profile.wedding_date + 'T00:00:00').toLocaleDateString('en-AU', {
-          day: 'numeric', month: 'long', year: 'numeric'
-        }));
+      if (!profileResult.error && profileResult.data) {
+        var profile = profileResult.data;
+        var parts = [];
+        if (profile.wedding_date) {
+          parts.push(new Date(profile.wedding_date + 'T00:00:00').toLocaleDateString('en-AU', {
+            day: 'numeric', month: 'long', year: 'numeric'
+          }));
+        }
+        if (profile.location) parts.push(profile.location);
+        if (parts.length > 0) {
+          document.getElementById('weddingSummary').textContent = parts.join(' · ');
+        }
       }
-      if (profile.location) parts.push(profile.location);
-      if (parts.length > 0) {
-        document.getElementById('weddingSummary').textContent = parts.join(' · ');
+
+      // Fetch real bookings and real saved suppliers for this account
+      var bookingsResult = await supabaseClient
+        .from('bookings')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      var savedResult = await supabaseClient
+        .from('saved_suppliers')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      var bookings = (bookingsResult.data || []);
+      var saved = (savedResult.data || []);
+
+      // Don't show a supplier as "just saved" if they've also been
+      // booked — the booking row already covers them
+      var bookedNames = bookings.map(function (b) { return b.supplier_name; });
+      var savedOnly = saved.filter(function (s) { return bookedNames.indexOf(s.supplier_name) === -1; });
+
+      var rowsHtml = '';
+
+      bookings.forEach(function (b) {
+        rowsHtml += '<div class="list-row"><div class="info"><h3>' + (b.category || '') + '</h3><p>' +
+          (b.supplier_name || '') + (b.package_name ? ' — ' + b.package_name : '') + '</p></div>' +
+          statusBadge(b.status) + '</div>';
+      });
+
+      savedOnly.forEach(function (s) {
+        rowsHtml += '<div class="list-row"><div class="info"><h3>' + (s.category || '') + '</h3><p>' +
+          (s.supplier_name || '') + '</p></div><span class="status-badge saved">❤ Saved</span></div>';
+      });
+
+      var container = document.getElementById('weddingRows');
+      if (rowsHtml === '') {
+        container.innerHTML = '<div class="empty-state"><h3>Nothing saved or booked yet</h3><p>Browse suppliers to save your favourites or send a booking request.</p></div>';
+      } else {
+        container.innerHTML = rowsHtml;
       }
     })();
 

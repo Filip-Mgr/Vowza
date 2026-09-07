@@ -54,7 +54,7 @@
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
             <a class="btn primary" href="supplier-profile.html">View Profile</a>
-            <a class="btn ghost" href="shortlist.html">♥ Save</a>
+            <button type="button" class="btn ghost save-btn" data-slug="jane-photography" data-name="Jane Photography" data-category="Photography" data-location="Melbourne" data-price="From $2,500">♥ Save</button>
           </div>
         </div>
       </div>
@@ -69,7 +69,7 @@
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
             <a class="btn primary" href="supplier-profile.html">View Profile</a>
-            <a class="btn ghost" href="shortlist.html">♥ Save</a>
+            <button type="button" class="btn ghost save-btn" data-slug="bloom-co" data-name="Bloom & Co" data-category="Florist" data-location="Geelong" data-price="From $850">♥ Save</button>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@
           <div class="availability"><span class="dot grey"></span> Booked on your date</div>
           <div class="actions">
             <a class="btn primary" href="supplier-profile.html">View Profile</a>
-            <a class="btn ghost" href="shortlist.html">♥ Save</a>
+            <button type="button" class="btn ghost save-btn" data-slug="dj-marco-live" data-name="DJ Marco Live" data-category="DJ" data-location="Melbourne" data-price="From $1,100">♥ Save</button>
           </div>
         </div>
       </div>
@@ -99,7 +99,7 @@
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
             <a class="btn primary" href="supplier-profile.html">View Profile</a>
-            <a class="btn ghost" href="shortlist.html">♥ Save</a>
+            <button type="button" class="btn ghost save-btn" data-slug="studio-belle" data-name="Studio Belle" data-category="Hair & Makeup" data-location="Melbourne" data-price="From $480">♥ Save</button>
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
             <a class="btn primary" href="supplier-profile.html">View Profile</a>
-            <a class="btn ghost" href="shortlist.html">♥ Save</a>
+            <button type="button" class="btn ghost save-btn" data-slug="reel-moments" data-name="Reel Moments" data-category="Videography" data-location="Ballarat" data-price="From $1,900">♥ Save</button>
           </div>
         </div>
       </div>
@@ -129,7 +129,7 @@
           <div class="availability"><span class="dot"></span> Available on your date</div>
           <div class="actions">
             <a class="btn primary" href="supplier-profile.html">View Profile</a>
-            <a class="btn ghost" href="shortlist.html">♥ Save</a>
+            <button type="button" class="btn ghost save-btn" data-slug="anna-hart-celebrant" data-name="Anna Hart, Celebrant" data-category="Celebrant" data-location="Melbourne" data-price="From $650">♥ Save</button>
           </div>
         </div>
       </div>
@@ -183,6 +183,81 @@
         });
       }
     })();
+
+    // ============================================
+    // SAVE BUTTONS: every card's Save button reads its own
+    // data-* attributes and inserts/removes a row in saved_suppliers,
+    // tied to whichever account is logged in. Clicking again on an
+    // already-saved supplier removes it (a toggle, not a one-way action).
+    // ============================================
+    (async function () {
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) return; // not logged in — buttons stay in default "Save" state
+
+      // Find out which of these suppliers (if any) this account has
+      // already saved, so the buttons open in the correct state.
+      var savedResult = await supabaseClient
+        .from('saved_suppliers')
+        .select('supplier_slug')
+        .eq('user_id', userResult.data.user.id);
+
+      var savedSlugs = (savedResult.data || []).map(function (row) { return row.supplier_slug; });
+
+      document.querySelectorAll('.save-btn').forEach(function (btn) {
+        if (savedSlugs.indexOf(btn.dataset.slug) !== -1) {
+          btn.textContent = '♥ Saved';
+          btn.classList.add('saved');
+        }
+      });
+    })();
+
+    document.querySelectorAll('.save-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var userResult = await supabaseClient.auth.getUser();
+        if (!userResult.data.user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        var userId = userResult.data.user.id;
+        var isSaved = btn.classList.contains('saved');
+
+        if (isSaved) {
+          // UNSAVE: delete the matching row for this account + supplier
+          btn.disabled = true;
+          var deleteResult = await supabaseClient
+            .from('saved_suppliers')
+            .delete()
+            .eq('user_id', userId)
+            .eq('supplier_slug', btn.dataset.slug);
+
+          btn.disabled = false;
+          if (deleteResult.error) {
+            alert('Could not remove: ' + deleteResult.error.message);
+            return;
+          }
+          btn.textContent = '♥ Save';
+          btn.classList.remove('saved');
+        } else {
+          // SAVE: insert a new row
+          btn.disabled = true;
+          var insertResult = await supabaseClient.from('saved_suppliers').insert({
+            user_id: userId,
+            supplier_slug: btn.dataset.slug,
+            supplier_name: btn.dataset.name,
+            category: btn.dataset.category
+          });
+
+          btn.disabled = false;
+          if (insertResult.error) {
+            alert('Could not save: ' + insertResult.error.message);
+            return;
+          }
+          btn.textContent = '♥ Saved';
+          btn.classList.add('saved');
+        }
+      });
+    });
   </script>
 
 </body>

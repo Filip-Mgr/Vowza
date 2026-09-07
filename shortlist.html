@@ -7,8 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 </head>
-<body>
+<body style="visibility:hidden;">
   <header class="site">
     <div class="wrap">
       <a class="wordmark" href="index.html">Vowza</a>
@@ -18,54 +20,85 @@
         <a href="my-wedding.html">My Wedding</a>
         <a href="shortlist.html" class="active">Saved</a>
         <a href="couple-profile.html">Profile</a>
+        <a href="#" id="logoutLink">Log Out</a>
       </nav>
     </div>
   </header>
 
   <section class="page-head wrap">
     <h1>My Shortlist</h1>
-    <p>Suppliers you've saved for 14 February 2027.</p>
+    <p>Suppliers you've saved.</p>
   </section>
 
-  <div class="wrap">
-    <div class="grid">
-
-      <div class="card">
-        <img class="photo" src="https://picsum.photos/seed/vowza-florist1/600/450" alt="Bloom & Co florist portfolio image">
-        <div class="body">
-          <div class="category">Florist</div>
-          <h3>Bloom &amp; Co</h3>
-          <div class="meta"><span>Geelong</span><span>From $850</span></div>
-          <div class="rating"><span class="stars">★★★★★</span> 4.8 (52 reviews)</div>
-          <div class="availability"><span class="dot"></span> Available on your date</div>
-          <div class="actions">
-            <a class="btn primary" href="supplier-profile.html">View Profile</a>
-            <div class="btn ghost">❤ Saved</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <img class="photo" src="https://picsum.photos/seed/vowza-video1/600/450" alt="Reel Moments videography portfolio image">
-        <div class="body">
-          <div class="category">Videography</div>
-          <h3>Reel Moments</h3>
-          <div class="meta"><span>Ballarat</span><span>From $1,900</span></div>
-          <div class="rating"><span class="stars">★★★★☆</span> 4.7 (29 reviews)</div>
-          <div class="availability"><span class="dot"></span> Available on your date</div>
-          <div class="actions">
-            <a class="btn primary" href="supplier-profile.html">View Profile</a>
-            <div class="btn ghost">❤ Saved</div>
-          </div>
-        </div>
-      </div>
-
+  <div class="wrap" style="padding-bottom:60px;">
+    <div class="grid" id="shortlistGrid">
+      <p style="text-align:center; color:var(--ink-soft);">Loading…</p>
     </div>
   </div>
 
   <footer>
     Vowza — Less emailing. More celebrating.
   </footer>
+
+  <script>
+    (async function () {
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      var result = await supabaseClient
+        .from('saved_suppliers')
+        .select('*')
+        .eq('user_id', userResult.data.user.id)
+        .order('created_at', { ascending: false });
+
+      document.body.style.visibility = 'visible';
+      var grid = document.getElementById('shortlistGrid');
+
+      if (result.error) {
+        grid.innerHTML = '<p style="text-align:center; color:var(--red);">Could not load your shortlist: ' + result.error.message + '</p>';
+        return;
+      }
+
+      if (result.data.length === 0) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><h3>Nothing saved yet</h3><p><a href="supplier-list.html" style="color:var(--evergreen); font-weight:500;">Browse suppliers</a> and tap Save on anyone you like.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = '';
+      result.data.forEach(function (s) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML =
+          '<div class="body" style="padding-top:20px;">' +
+          '<div class="category">' + (s.category || '') + '</div>' +
+          '<h3>' + (s.supplier_name || '') + '</h3>' +
+          '<div class="actions">' +
+          '<a class="btn primary" href="supplier-list.html">View Profile</a>' +
+          '<button type="button" class="btn danger remove-btn">Remove</button>' +
+          '</div></div>';
+
+        card.querySelector('.remove-btn').addEventListener('click', async function () {
+          var delResult = await supabaseClient.from('saved_suppliers').delete().eq('id', s.id);
+          if (delResult.error) {
+            alert('Could not remove: ' + delResult.error.message);
+          } else {
+            card.remove();
+          }
+        });
+
+        grid.appendChild(card);
+      });
+    })();
+
+    document.getElementById('logoutLink').addEventListener('click', async function (e) {
+      e.preventDefault();
+      await supabaseClient.auth.signOut();
+      window.location.href = 'index.html';
+    });
+  </script>
 
 </body>
 </html>
