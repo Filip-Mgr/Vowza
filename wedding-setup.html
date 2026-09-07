@@ -28,6 +28,10 @@
          and every field that needs to be saved has its own id too. -->
     <form class="form-card" id="weddingForm">
       <div class="field">
+        <label>What are your names?</label>
+        <input type="text" id="coupleNames" placeholder="e.g. Sasha & Filip">
+      </div>
+      <div class="field">
         <label>What's your wedding date?</label>
         <input type="date" id="weddingDate">
       </div>
@@ -109,6 +113,8 @@
         .from('wedding_profiles')
         .insert({
           user_id: currentUser.id,
+          email: currentUser.email,
+          couple_name: document.getElementById('coupleNames').value,
           wedding_date: document.getElementById('weddingDate').value,
           location: document.getElementById('weddingLocation').value,
           guests: document.getElementById('guestCount').value,

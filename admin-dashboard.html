@@ -33,9 +33,9 @@
     <h2 style="font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:16px;">Wedding Profiles</h2>
     <p style="color:var(--ink-soft); font-size:13px; margin-top:-10px; margin-bottom:16px;">Live data from Supabase — every couple who has completed Wedding Setup. Edit a field and click Save, or Delete to remove a profile entirely.</p>
     <table class="admin" style="margin-bottom:50px;">
-      <tr><th>Wedding Date</th><th>Location</th><th>Guests</th><th>Budget</th><th>Categories</th><th>Actions</th></tr>
+      <tr><th>Couple</th><th>Email</th><th>Wedding Date</th><th>Location</th><th>Guests</th><th>Budget</th><th>Categories</th><th>Actions</th></tr>
       <tbody id="profilesTableBody">
-        <tr><td colspan="6" style="text-align:center; color:var(--ink-soft);">Loading…</td></tr>
+        <tr><td colspan="8" style="text-align:center; color:var(--ink-soft);">Loading…</td></tr>
       </tbody>
     </table>
 
@@ -49,11 +49,12 @@
     </table>
 
     <h2 style="font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:16px;">Recent Bookings</h2>
+    <p style="color:var(--ink-soft); font-size:13px; margin-top:-10px; margin-bottom:16px;">Live data — real booking requests submitted through supplier-profile.html.</p>
     <table class="admin" style="margin-bottom:50px;">
-      <tr><th>Couple</th><th>Supplier</th><th>Date</th><th>Status</th></tr>
-      <tr><td>Sasha &amp; Filip</td><td>Jane Photography</td><td>14 Feb 2027</td><td><span class="status-badge confirmed">Confirmed</span></td></tr>
-      <tr><td>Priya &amp; Daniel</td><td>Jane Photography</td><td>9 Nov 2026</td><td><span class="status-badge confirmed">Confirmed</span></td></tr>
-      <tr><td>Riley &amp; Morgan</td><td>Jane Photography</td><td>22 Jun 2028</td><td><span class="status-badge pending">Pending</span></td></tr>
+      <tr><th>Supplier</th><th>Package</th><th>Wedding Date</th><th>Status</th></tr>
+      <tbody id="bookingsTableBody">
+        <tr><td colspan="4" style="text-align:center; color:var(--ink-soft);">Loading…</td></tr>
+      </tbody>
     </table>
   </div>
 
@@ -74,6 +75,8 @@
     function buildRow(profile) {
       var tr = document.createElement('tr');
       tr.innerHTML =
+        '<td><input type="text" value="' + (profile.couple_name || '') + '" data-field="couple_name"></td>' +
+        '<td>' + (profile.email || '') + '</td>' +
         '<td><input type="date" value="' + (profile.wedding_date || '') + '" data-field="wedding_date"></td>' +
         '<td><input type="text" value="' + (profile.location || '') + '" data-field="location"></td>' +
         '<td><input type="text" value="' + (profile.guests || '') + '" data-field="guests"></td>' +
@@ -126,12 +129,12 @@
       tableBody.innerHTML = ''; // clear the "Loading…" row
 
       if (result.error) {
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--red);">Could not load profiles: ' + result.error.message + '</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--red);">Could not load profiles: ' + result.error.message + '</td></tr>';
         return;
       }
 
       if (result.data.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--ink-soft);">No wedding profiles yet.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--ink-soft);">No wedding profiles yet.</td></tr>';
         return;
       }
 
@@ -199,6 +202,43 @@
     }
 
     // ============================================
+    // BOOKINGS TABLE — read-only summary for admin (status changes
+    // would come from the supplier side, not built yet)
+    // ============================================
+    async function loadBookings() {
+      var bookingsTableBody = document.getElementById('bookingsTableBody');
+      var result = await supabaseClient
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      bookingsTableBody.innerHTML = '';
+
+      if (result.error) {
+        bookingsTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--red);">Could not load bookings: ' + result.error.message + '</td></tr>';
+        return;
+      }
+
+      if (result.data.length === 0) {
+        bookingsTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--ink-soft);">No bookings yet.</td></tr>';
+        return;
+      }
+
+      result.data.forEach(function (b) {
+        var tr = document.createElement('tr');
+        var dateDisplay = b.wedding_date
+          ? new Date(b.wedding_date + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+          : '—';
+        tr.innerHTML =
+          '<td>' + (b.supplier_name || '') + '</td>' +
+          '<td>' + (b.package_name || '') + '</td>' +
+          '<td>' + dateDisplay + '</td>' +
+          '<td><span class="status-badge ' + (b.status || 'pending') + '">' + (b.status || 'pending') + '</span></td>';
+        bookingsTableBody.appendChild(tr);
+      });
+    }
+
+    // ============================================
     // AUTH GUARD — this is what actually protects the page.
     // The whole page starts hidden (see the <body style="visibility:
     // hidden"> above). We check not just "is someone logged in" but
@@ -220,6 +260,7 @@
       document.body.style.visibility = 'visible';
       loadProfiles();
       loadSuppliers();
+      loadBookings();
     })();
 
     // LOG OUT: ends the Supabase session and sends them back to login

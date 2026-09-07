@@ -31,7 +31,7 @@
 
   <div class="wrap" style="padding-bottom:60px;">
     <form class="form-card" style="max-width:640px;" id="profileForm">
-      <div class="field"><label>Name</label><input type="text" id="coupleName" value="Sasha &amp; Filip"></div>
+      <div class="field"><label>Name</label><input type="text" id="coupleName" placeholder="e.g. Sasha &amp; Filip"></div>
       <div class="field"><label>Email</label><input type="email" id="coupleEmail" readonly style="opacity:0.7;"></div>
       <div class="field"><label>Phone</label><input type="text" id="couplePhone" value="0400 000 000"></div>
       <div class="field"><label>Wedding date</label><input type="date" id="profileDate"></div>
@@ -71,6 +71,7 @@
       if (result.error || !result.data) return;
       var profile = result.data;
 
+      if (profile.couple_name) document.getElementById('coupleName').value = profile.couple_name;
       if (profile.wedding_date) document.getElementById('profileDate').value = profile.wedding_date;
       if (profile.location) document.getElementById('profileLocation').value = profile.location;
       if (profile.guests) document.getElementById('profileGuests').value = profile.guests;
@@ -84,6 +85,7 @@
       e.preventDefault();
 
       var fields = {
+        couple_name: document.getElementById('coupleName').value,
         wedding_date: document.getElementById('profileDate').value,
         location: document.getElementById('profileLocation').value,
         guests: document.getElementById('profileGuests').value,
@@ -102,6 +104,7 @@
       if (!updateResult.error && updateResult.data.length === 0) {
         // Nothing existed for this account yet — create it instead
         fields.user_id = currentUser.id;
+        fields.email = currentUser.email;
         result = await supabaseClient.from('wedding_profiles').insert(fields);
       } else {
         result = updateResult;
