@@ -10,11 +10,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 </head>
-<body>
+<body style="visibility:hidden;">
   <header class="site">
     <div class="wrap">
       <a class="wordmark" href="admin-dashboard.html">Vowza <span style="font-size:12px; color:var(--ink-soft); font-family:'Work Sans',sans-serif; font-weight:400;">Admin</span></a>
-      <nav><a href="index.html">Exit Admin</a></nav>
+      <nav><a href="#" id="logoutLink">Log Out</a> <a href="index.html">Exit Admin</a></nav>
     </div>
   </header>
 
@@ -40,11 +40,12 @@
     </table>
 
     <h2 style="font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:16px;">Suppliers Awaiting Approval</h2>
+    <p style="color:var(--ink-soft); font-size:13px; margin-top:-10px; margin-bottom:16px;">Live data — real supplier signups from supplier-onboarding.html.</p>
     <table class="admin" style="margin-bottom:50px;">
-      <tr><th>Business</th><th>Category</th><th>Location</th><th>Action</th></tr>
-      <tr><td>Bloom &amp; Co</td><td>Florist</td><td>Geelong</td><td><a class="btn primary small" href="#">Approve</a></td></tr>
-      <tr><td>Reel Moments</td><td>Videography</td><td>Ballarat</td><td><a class="btn primary small" href="#">Approve</a></td></tr>
-      <tr><td>DJ Marco Live</td><td>DJ</td><td>Melbourne</td><td><a class="btn primary small" href="#">Approve</a></td></tr>
+      <tr><th>Business</th><th>Category</th><th>Location</th><th>Contact</th><th>Action</th></tr>
+      <tbody id="suppliersTableBody">
+        <tr><td colspan="5" style="text-align:center; color:var(--ink-soft);">Loading…</td></tr>
+      </tbody>
     </table>
 
     <h2 style="font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:16px;">Recent Bookings</h2>
@@ -113,8 +114,10 @@
       return tr;
     }
 
-    // Load every profile as soon as the page opens
-    (async function () {
+    // Fetches every profile and renders the table — only ever called
+    // AFTER we've confirmed someone is actually logged in (see the
+    // auth guard below).
+    async function loadProfiles() {
       var result = await supabaseClient
         .from('wedding_profiles')
         .select('*')
@@ -135,7 +138,96 @@
       result.data.forEach(function (profile) {
         tableBody.appendChild(buildRow(profile));
       });
+    }
+
+    // ============================================
+    // SUPPLIERS TABLE — same idea as wedding profiles above, but for
+    // the suppliers table, with an Approve button instead of Save.
+    // ============================================
+    var suppliersTableBody = document.getElementById('suppliersTableBody');
+
+    function buildSupplierRow(supplier) {
+      var tr = document.createElement('tr');
+      var approveButton = supplier.approved
+        ? '<span class="status-badge confirmed">Approved</span>'
+        : '<button type="button" class="btn primary small approve-btn">Approve</button>';
+
+      tr.innerHTML =
+        '<td>' + (supplier.business_name || '') + '</td>' +
+        '<td>' + (supplier.category || '') + '</td>' +
+        '<td>' + (supplier.location || '') + '</td>' +
+        '<td>' + (supplier.email || '') + '</td>' +
+        '<td>' + approveButton + '</td>';
+
+      var btn = tr.querySelector('.approve-btn');
+      if (btn) {
+        btn.addEventListener('click', async function () {
+          var result = await supabaseClient.from('suppliers').update({ approved: true }).eq('id', supplier.id);
+          if (result.error) {
+            alert('Could not approve: ' + result.error.message);
+          } else {
+            supplier.approved = true;
+            tr.replaceWith(buildSupplierRow(supplier));
+          }
+        });
+      }
+
+      return tr;
+    }
+
+    async function loadSuppliers() {
+      var result = await supabaseClient
+        .from('suppliers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      suppliersTableBody.innerHTML = '';
+
+      if (result.error) {
+        suppliersTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--red);">Could not load suppliers: ' + result.error.message + '</td></tr>';
+        return;
+      }
+
+      if (result.data.length === 0) {
+        suppliersTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--ink-soft);">No suppliers yet.</td></tr>';
+        return;
+      }
+
+      result.data.forEach(function (supplier) {
+        suppliersTableBody.appendChild(buildSupplierRow(supplier));
+      });
+    }
+
+    // ============================================
+    // AUTH GUARD — this is what actually protects the page.
+    // The whole page starts hidden (see the <body style="visibility:
+    // hidden"> above). We check not just "is someone logged in" but
+    // specifically "does this account have the admin role in
+    // app_metadata" — a regular couple or supplier account being
+    // logged in is NOT enough to get in here.
+    // ============================================
+    (async function () {
+      var userResult = await supabaseClient.auth.getUser();
+      var user = userResult.data.user;
+      var isAdmin = user && user.app_metadata && user.app_metadata.role === 'admin';
+
+      if (!isAdmin) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Confirmed admin — reveal the page and load the real data
+      document.body.style.visibility = 'visible';
+      loadProfiles();
+      loadSuppliers();
     })();
+
+    // LOG OUT: ends the Supabase session and sends them back to login
+    document.getElementById('logoutLink').addEventListener('click', async function (e) {
+      e.preventDefault();
+      await supabaseClient.auth.signOut();
+      window.location.href = 'login.html';
+    });
   </script>
 
 </body>

@@ -143,20 +143,20 @@
 
   <!-- ============================================
        JAVASCRIPT: runs as soon as this page loads.
-       Looks up which profile belongs to this browser (via the id
-       saved in localStorage), fetches that ONE row from Supabase,
-       and updates this page to reflect it.
+       If someone's logged in, fetches THEIR wedding profile and
+       personalizes the page. If not, the page just shows its
+       default content — browsing here doesn't require an account.
        ============================================ -->
   <script>
     (async function () {
-      var profileId = localStorage.getItem('vowzaProfileId');
-      if (!profileId) return; // no profile yet — just show the page's defaults
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) return; // not logged in — defaults stay, browsing is fine
 
       var result = await supabaseClient
         .from('wedding_profiles')
         .select('*')
-        .eq('id', profileId)
-        .single();
+        .eq('user_id', userResult.data.user.id)
+        .maybeSingle();
 
       if (result.error || !result.data) return; // fail quietly, defaults stay visible
 

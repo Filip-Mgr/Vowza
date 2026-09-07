@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 </head>
-<body>
+<body style="visibility:hidden;">
   <header class="site">
     <div class="wrap">
       <a class="wordmark" href="index.html">Vowza</a>
@@ -20,6 +20,7 @@
         <a href="my-wedding.html" class="active">My Wedding</a>
         <a href="shortlist.html">Saved</a>
         <a href="couple-profile.html">Profile</a>
+        <a href="#" id="logoutLink">Log Out</a>
       </nav>
     </div>
   </header>
@@ -69,16 +70,25 @@
   </footer>
 
   <script>
+    // AUTH GUARD: this is personal data, so require login
     (async function () {
-      var profileId = localStorage.getItem('vowzaProfileId');
-      if (!profileId) return;
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
 
+      // maybeSingle() (not single()) is used here deliberately — a
+      // brand-new couple might not have completed Wedding Setup yet,
+      // meaning zero rows exist. single() would treat that as an
+      // error; maybeSingle() just returns null and we show defaults.
       var result = await supabaseClient
         .from('wedding_profiles')
         .select('*')
-        .eq('id', profileId)
-        .single();
+        .eq('user_id', userResult.data.user.id)
+        .maybeSingle();
 
+      document.body.style.visibility = 'visible';
       if (result.error || !result.data) return;
       var profile = result.data;
 
@@ -93,6 +103,12 @@
         document.getElementById('weddingSummary').textContent = parts.join(' · ');
       }
     })();
+
+    document.getElementById('logoutLink').addEventListener('click', async function (e) {
+      e.preventDefault();
+      await supabaseClient.auth.signOut();
+      window.location.href = 'index.html';
+    });
   </script>
 
 </body>

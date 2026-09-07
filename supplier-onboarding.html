@@ -7,8 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 </head>
-<body>
+<body style="visibility:hidden;">
   <header class="site">
     <div class="wrap" style="justify-content:center;">
       <a class="wordmark" href="index.html">Vowza</a>
@@ -21,14 +23,14 @@
   </section>
 
   <div class="wrap" style="padding-bottom:60px;">
-    <form class="form-card">
-      <div class="field"><label>Business name</label><input type="text" placeholder="e.g. Jane Photography"></div>
-      <div class="field"><label>Contact name</label><input type="text" placeholder="Your full name"></div>
-      <div class="field"><label>Email</label><input type="email" placeholder="you@business.com"></div>
-      <div class="field"><label>Phone</label><input type="text" placeholder="0400 000 000"></div>
+    <form class="form-card" id="onboardingForm">
+      <div class="field"><label>Business name</label><input type="text" id="businessName" placeholder="e.g. Jane Photography" required></div>
+      <div class="field"><label>Contact name</label><input type="text" id="contactName" placeholder="Your full name"></div>
+      <div class="field"><label>Email</label><input type="email" id="businessEmail" placeholder="you@business.com"></div>
+      <div class="field"><label>Phone</label><input type="text" id="businessPhone" placeholder="0400 000 000"></div>
       <div class="field">
         <label>Category</label>
-        <select>
+        <select id="businessCategory">
           <option>Photography</option>
           <option>Videography</option>
           <option>Florist</option>
@@ -40,17 +42,62 @@
           <option>Wedding Cars</option>
         </select>
       </div>
-      <div class="field"><label>Location</label><input type="text" placeholder="e.g. Melbourne, VIC"></div>
-      <div class="field"><label>Website</label><input type="text" placeholder="https://"></div>
-      <div class="field"><label>Instagram</label><input type="text" placeholder="@yourbusiness"></div>
-      <div class="field"><label>Travel radius</label><input type="text" placeholder="e.g. 100km"></div>
-      <a class="btn primary full" href="supplier-profile-creation.html">Continue</a>
+      <div class="field"><label>Location</label><input type="text" id="businessLocation" placeholder="e.g. Melbourne, VIC"></div>
+      <div class="field"><label>Website</label><input type="text" id="businessWebsite" placeholder="https://"></div>
+      <div class="field"><label>Instagram</label><input type="text" id="businessInstagram" placeholder="@yourbusiness"></div>
+      <div class="field"><label>Travel radius</label><input type="text" id="businessTravelRadius" placeholder="e.g. 100km"></div>
+      <button type="submit" class="btn primary full">Continue</button>
+      <p id="onboardingError" style="text-align:center; color:var(--red); font-size:13px; margin-top:12px; display:none;"></p>
     </form>
   </div>
 
   <footer>
     Vowza — Less emailing. More celebrating.
   </footer>
+
+  <script>
+    var currentUser = null;
+
+    // AUTH GUARD: must be signed up/logged in as a supplier already
+    (async function () {
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = userResult.data.user;
+      document.getElementById('businessEmail').value = currentUser.email;
+      document.body.style.visibility = 'visible';
+    })();
+
+    document.getElementById('onboardingForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      var errorMsg = document.getElementById('onboardingError');
+      errorMsg.style.display = 'none';
+
+      var result = await supabaseClient.from('suppliers').insert({
+        user_id: currentUser.id,
+        business_name: document.getElementById('businessName').value,
+        contact_name: document.getElementById('contactName').value,
+        email: document.getElementById('businessEmail').value,
+        phone: document.getElementById('businessPhone').value,
+        category: document.getElementById('businessCategory').value,
+        location: document.getElementById('businessLocation').value,
+        website: document.getElementById('businessWebsite').value,
+        instagram: document.getElementById('businessInstagram').value,
+        travel_radius: document.getElementById('businessTravelRadius').value
+      });
+
+      if (result.error) {
+        errorMsg.textContent = result.error.message;
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      window.location.href = 'supplier-profile-creation.html';
+    });
+  </script>
 
 </body>
 </html>

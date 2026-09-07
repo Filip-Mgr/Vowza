@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — Vowza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</head>
+<body>
+  <header class="site">
+    <div class="wrap" style="justify-content:center;">
+      <a class="wordmark" href="index.html">Vowza</a>
+    </div>
+  </header>
+
+  <section class="page-head wrap" style="text-align:center;">
+    <h1 id="signupHeading">Create your account</h1>
+    <p>Just a login for now — the rest of your details come next.</p>
+  </section>
+
+  <div class="wrap" style="padding-bottom:60px;">
+    <form class="form-card" id="signupForm">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signupEmail" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signupPassword" required minlength="6">
+      </div>
+      <button type="submit" class="btn primary full">Create Account</button>
+      <p id="signupError" style="text-align:center; color:var(--red); font-size:13px; margin-top:12px; display:none;"></p>
+      <p id="signupSuccess" style="text-align:center; color:var(--evergreen); font-size:13px; margin-top:12px; display:none;"></p>
+    </form>
+    <p style="text-align:center; margin-top:20px; font-size:14px;">
+      Already have an account? <a href="login.html" style="color:var(--evergreen); font-weight:500;">Log in</a>
+    </p>
+  </div>
+
+  <footer>
+    Vowza — Less emailing. More celebrating.
+  </footer>
+
+  <script>
+    // Read ?role=couple or ?role=supplier from the page's own URL,
+    // e.g. signup.html?role=supplier — this is how start.html tells
+    // this page which kind of account is being created.
+    var params = new URLSearchParams(window.location.search);
+    var role = params.get('role') === 'supplier' ? 'supplier' : 'couple';
+
+    document.getElementById('signupHeading').textContent =
+      role === 'supplier' ? 'Create your supplier account' : 'Create your account';
+
+    document.getElementById('signupForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      var errorMsg = document.getElementById('signupError');
+      var successMsg = document.getElementById('signupSuccess');
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+
+      // The "options.data" object becomes this user's user_metadata —
+      // a place to stash a bit of custom info (here, their role) on
+      // the account itself. Note: this is fine for "which onboarding
+      // flow should they see" but NOT for anything security-sensitive
+      // (see admin-dashboard.html, which deliberately does NOT trust
+      // this field for admin access).
+      var result = await supabaseClient.auth.signUp({
+        email: document.getElementById('signupEmail').value,
+        password: document.getElementById('signupPassword').value,
+        options: { data: { role: role } }
+      });
+
+      if (result.error) {
+        errorMsg.textContent = result.error.message;
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      // If email confirmation is turned on, Supabase creates the user
+      // but does NOT hand back a logged-in session yet — they have to
+      // click a link in their email first.
+      if (!result.data.session) {
+        successMsg.textContent = 'Account created! Check your email to confirm, then log in.';
+        successMsg.style.display = 'block';
+        return;
+      }
+
+      // Confirmation is off (or already confirmed) — we're logged in
+      // immediately, so move straight on to the next step.
+      window.location.href = role === 'supplier' ? 'supplier-onboarding.html' : 'wedding-setup.html';
+    });
+  </script>
+
+</body>
+</html>

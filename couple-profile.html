@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 </head>
-<body>
+<body style="visibility:hidden;">
   <header class="site">
     <div class="wrap">
       <a class="wordmark" href="index.html">Vowza</a>
@@ -20,6 +20,7 @@
         <a href="my-wedding.html">My Wedding</a>
         <a href="shortlist.html">Saved</a>
         <a href="couple-profile.html" class="active">Profile</a>
+        <a href="#" id="logoutLink">Log Out</a>
       </nav>
     </div>
   </header>
@@ -31,7 +32,7 @@
   <div class="wrap" style="padding-bottom:60px;">
     <form class="form-card" style="max-width:640px;" id="profileForm">
       <div class="field"><label>Name</label><input type="text" id="coupleName" value="Sasha &amp; Filip"></div>
-      <div class="field"><label>Email</label><input type="email" id="coupleEmail" value="sasha.filip@email.com"></div>
+      <div class="field"><label>Email</label><input type="email" id="coupleEmail" readonly style="opacity:0.7;"></div>
       <div class="field"><label>Phone</label><input type="text" id="couplePhone" value="0400 000 000"></div>
       <div class="field"><label>Wedding date</label><input type="date" id="profileDate"></div>
       <div class="field"><label>Wedding location</label><input type="text" id="profileLocation" value="Melbourne, VIC"></div>
@@ -47,18 +48,26 @@
   </footer>
 
   <script>
-    // On page load: if this browser already has a saved profile,
-    // fetch it from Supabase and pre-fill the form with it.
+    var currentUser = null;
+
+    // AUTH GUARD + pre-fill: require login, then load whatever
+    // wedding_profiles row belongs to this account (if any yet).
     (async function () {
-      var profileId = localStorage.getItem('vowzaProfileId');
-      if (!profileId) return;
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = userResult.data.user;
+      document.getElementById('coupleEmail').value = currentUser.email;
 
       var result = await supabaseClient
         .from('wedding_profiles')
         .select('*')
-        .eq('id', profileId)
-        .single();
+        .eq('user_id', currentUser.id)
+        .maybeSingle(); // no row yet is fine — not an error
 
+      document.body.style.visibility = 'visible';
       if (result.error || !result.data) return;
       var profile = result.data;
 
@@ -68,9 +77,9 @@
       if (profile.budget) document.getElementById('profileBudget').value = profile.budget;
     })();
 
-    // On save: update the existing row if we have one, otherwise
-    // create a new row (covers someone reaching this page without
-    // going through wedding-setup.html first).
+    // On save: update the existing row for this account if one
+    // exists, otherwise create it (covers someone reaching this page
+    // before ever completing wedding-setup.html).
     document.getElementById('profileForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
@@ -81,14 +90,21 @@
         budget: document.getElementById('profileBudget').value
       };
 
-      var profileId = localStorage.getItem('vowzaProfileId');
-      var result;
+      // Try updating first — .select() makes it hand back the updated
+      // row(s) so we can tell whether anything actually existed to update.
+      var updateResult = await supabaseClient
+        .from('wedding_profiles')
+        .update(fields)
+        .eq('user_id', currentUser.id)
+        .select();
 
-      if (profileId) {
-        result = await supabaseClient.from('wedding_profiles').update(fields).eq('id', profileId);
+      var result;
+      if (!updateResult.error && updateResult.data.length === 0) {
+        // Nothing existed for this account yet — create it instead
+        fields.user_id = currentUser.id;
+        result = await supabaseClient.from('wedding_profiles').insert(fields);
       } else {
-        result = await supabaseClient.from('wedding_profiles').insert(fields).select().single();
-        if (!result.error) localStorage.setItem('vowzaProfileId', result.data.id);
+        result = updateResult;
       }
 
       if (result.error) {
@@ -97,6 +113,12 @@
       }
 
       document.getElementById('savedMessage').style.display = 'block';
+    });
+
+    document.getElementById('logoutLink').addEventListener('click', async function (e) {
+      e.preventDefault();
+      await supabaseClient.auth.signOut();
+      window.location.href = 'index.html';
     });
   </script>
 
