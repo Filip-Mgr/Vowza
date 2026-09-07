@@ -45,6 +45,13 @@
   </footer>
 
   <script>
+    // This is a DISPLAY lookup table, not fake data — the actual status
+    // for each booking comes from the real "status" column in the
+    // database (see bookings.status below). This function only decides
+    // how to SHOW each of the 4 possible fixed values (color, icon,
+    // wording) — the same way a traffic light's colors always mean the
+    // same thing, without that being "hardcoded data" about any
+    // particular car's real position.
     function statusBadge(status) {
       var map = {
         pending: ['status-badge pending', '🟡 Awaiting response'],
