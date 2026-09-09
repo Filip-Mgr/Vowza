@@ -32,12 +32,14 @@
 
   <div class="wrap">
     <div class="filters" id="filterChips">
-      <span class="active">All categories</span>
-      <span>Photography</span>
-      <span>Florist</span>
-      <span>DJ</span>
-      <span>Hair & Makeup</span>
-      <span>Available on my date</span>
+      <span class="active" data-all>All categories</span>
+      <span data-category="Photography">Photography</span>
+      <span data-category="Florist">Florist</span>
+      <span data-category="DJ">DJ</span>
+      <span data-category="Hair & Makeup">Hair & Makeup</span>
+      <span data-category="Videography">Videography</span>
+      <span data-category="Celebrant">Celebrant</span>
+      <span data-available>Available on my date</span>
     </div>
   </div>
 
@@ -148,6 +150,65 @@
        default content — browsing here doesn't require an account.
        ============================================ -->
   <script>
+    // ============================================
+    // REAL FILTERING — this is what was missing before. The chips
+    // getting highlighted was only ever cosmetic; nothing actually
+    // hid non-matching cards. Now:
+    //  - activeCategories is the SET of categories currently selected
+    //    (can be more than one — a couple might want to see several
+    //    categories at once, not just their original wedding-setup pick)
+    //  - Clicking any chip toggles it, and re-runs the filter
+    //  - Clicking "All categories" clears every specific selection
+    // ============================================
+    var activeCategories = new Set();
+    var availableOnlyFilter = false;
+
+    function applyFilters() {
+      document.querySelectorAll('.grid .card').forEach(function (card) {
+        var cardCategory = card.querySelector('.category').textContent.trim();
+        var isBooked = card.querySelector('.dot.grey') !== null;
+
+        var categoryMatch = activeCategories.size === 0 || activeCategories.has(cardCategory);
+        var availabilityMatch = !availableOnlyFilter || !isBooked;
+
+        card.style.display = (categoryMatch && availabilityMatch) ? '' : 'none';
+      });
+    }
+
+    function updateChipVisuals() {
+      document.querySelectorAll('#filterChips span').forEach(function (chip) {
+        if (chip.hasAttribute('data-all')) {
+          chip.classList.toggle('active', activeCategories.size === 0);
+        } else if (chip.hasAttribute('data-available')) {
+          chip.classList.toggle('active', availableOnlyFilter);
+        } else {
+          chip.classList.toggle('active', activeCategories.has(chip.dataset.category));
+        }
+      });
+    }
+
+    // Every chip is clickable — this is the fix for "I can't edit my
+    // selection." Clicking always works, regardless of how a chip
+    // first became active (whether from wedding-setup or a previous click).
+    document.querySelectorAll('#filterChips span').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        if (chip.hasAttribute('data-all')) {
+          activeCategories.clear();
+        } else if (chip.hasAttribute('data-available')) {
+          availableOnlyFilter = !availableOnlyFilter;
+        } else {
+          var cat = chip.dataset.category;
+          if (activeCategories.has(cat)) {
+            activeCategories.delete(cat);
+          } else {
+            activeCategories.add(cat);
+          }
+        }
+        updateChipVisuals();
+        applyFilters();
+      });
+    });
+
     (async function () {
       var userResult = await supabaseClient.auth.getUser();
       if (!userResult.data.user) return; // not logged in — defaults stay, browsing is fine
@@ -171,16 +232,16 @@
       }
 
       // categories was stored as one comma-separated text field —
-      // split() turns "Photography,Florist,DJ" back into a real list
+      // split() turns "Photography,Florist,DJ" back into a real list.
+      // This now actually FILTERS the cards too, not just highlights
+      // the chips — but since the chips are all clickable, the couple
+      // can freely change this starting point afterward.
       if (profile.categories) {
-        var categories = profile.categories.split(',');
-        var chips = document.querySelectorAll('#filterChips span');
-        chips.forEach(function (chip) {
-          chip.classList.remove('active');
-          if (categories.indexOf(chip.textContent.trim()) !== -1) {
-            chip.classList.add('active');
-          }
+        profile.categories.split(',').forEach(function (cat) {
+          activeCategories.add(cat.trim());
         });
+        updateChipVisuals();
+        applyFilters();
       }
     })();
 

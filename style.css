@@ -110,8 +110,10 @@ button.btn { font: inherit; cursor: pointer; appearance: none; -webkit-appearanc
    FILTER CHIPS
    ============================================ */
 .filters { display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 32px; }
-.filters span { font-size: 13px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 20px; color: var(--ink-soft); background: #fff; }
+.filters span { font-size: 13px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 20px; color: var(--ink-soft); background: #fff; cursor: pointer; user-select: none; transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease; }
+.filters span:hover { border-color: var(--evergreen); color: var(--evergreen); }
 .filters span.active { background: var(--evergreen); color: #fff; border-color: var(--evergreen); }
+.filters span.active:hover { color: #fff; }
 
 /* ============================================
    FORMS (wedding setup, booking request, onboarding, etc.)
