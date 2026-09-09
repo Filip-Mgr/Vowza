@@ -76,7 +76,7 @@
           '<div class="category">' + (s.category || '') + '</div>' +
           '<h3>' + (s.supplier_name || '') + '</h3>' +
           '<div class="actions">' +
-          '<a class="btn primary" href="supplier-list.html">View Profile</a>' +
+          '<a class="btn primary" href="supplier-profile.html?slug=' + encodeURIComponent(s.supplier_slug || '') + '">View Profile</a>' +
           '<button type="button" class="btn danger remove-btn">Remove</button>' +
           '</div></div>';
 

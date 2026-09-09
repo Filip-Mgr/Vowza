@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jane Photography — Vowza</title>
+<title id="pageTitle">Supplier Profile — Vowza</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <style>
-  /* Page-specific: the two-column hero layout is only used here */
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 36px; padding: 40px 0; align-items: center; }
   .hero img { width: 100%; border-radius: 12px; aspect-ratio: 4/3; object-fit: cover; }
   .hero .category { font-size: 13px; color: var(--ink-soft); }
@@ -23,7 +22,7 @@
   @media (max-width: 700px) { .hero { grid-template-columns: 1fr; } }
 </style>
 </head>
-<body>
+<body style="visibility:hidden;">
 
   <header class="site">
     <div class="wrap">
@@ -40,16 +39,16 @@
 
   <div class="wrap">
     <div class="hero">
-      <img src="https://picsum.photos/seed/vowza-photo1/700/525" alt="Jane Photography cover image">
+      <img id="heroImg" src="" alt="">
       <div>
-        <div class="category">Photography</div>
-        <h1>Jane Photography</h1>
-        <div class="location">Melbourne, VIC · Travels up to 100km</div>
-        <div class="rating"><span class="stars">★★★★★</span> 4.9 (86 reviews)</div>
-        <p class="about">Documentary-style wedding photography with a focus on candid, unposed moments. Based in Melbourne, available for weddings across Victoria.</p>
+        <div class="category" id="supCategory"></div>
+        <h1 id="supName"></h1>
+        <div class="location" id="supLocation"></div>
+        <div class="rating"><span class="stars" id="supStars"></span> <span id="supRatingText"></span></div>
+        <p class="about" id="supAbout"></p>
         <div class="cta-row">
-          <a class="btn primary" href="#packages">See Packages & Book</a>
-          <button type="button" class="btn ghost save-btn" data-slug="jane-photography" data-name="Jane Photography" data-category="Photography">♥ Save</button>
+          <a class="btn primary" href="#packages">See Packages &amp; Book</a>
+          <button type="button" class="btn ghost save-btn" id="saveBtn">♥ Save</button>
         </div>
       </div>
     </div>
@@ -59,54 +58,21 @@
 
     <section class="block">
       <h2>Portfolio</h2>
-      <div class="gallery">
-        <img class="tall" src="https://picsum.photos/seed/vowza-g1/300/600" alt="Portfolio image 1">
-        <img src="https://picsum.photos/seed/vowza-g2/300/300" alt="Portfolio image 2">
-        <img class="wide" src="https://picsum.photos/seed/vowza-g3/600/300" alt="Portfolio image 3">
-        <img src="https://picsum.photos/seed/vowza-g4/300/300" alt="Portfolio image 4">
-        <img src="https://picsum.photos/seed/vowza-g5/300/300" alt="Portfolio image 5">
-        <img class="tall" src="https://picsum.photos/seed/vowza-g6/300/600" alt="Portfolio image 6">
-      </div>
+      <div class="gallery" id="gallery"></div>
     </section>
 
     <section class="block">
       <h2>Services</h2>
-      <ul class="services">
-        <li>Full-day wedding photography</li>
-        <li>Engagement shoots</li>
-        <li>Second photographer add-on</li>
-        <li>Same-day photo previews</li>
-      </ul>
+      <ul class="services" id="servicesList"></ul>
     </section>
 
     <section class="block" id="packages">
       <h2>Packages</h2>
-      <div class="package">
-        <div>
-          <div class="name">Essential Package</div>
-          <div class="desc">6 hours coverage, 1 photographer, online gallery</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="price">$1,500</div>
-          <a class="btn primary small" style="margin-top:8px; display:inline-block;"
-             href="booking-request.html?slug=jane-photography&supplier=Jane%20Photography&category=Photography&package=Essential%20Package&price=1500">Request to Book</a>
-        </div>
-      </div>
-      <div class="package recommended">
-        <div>
-          <div class="name">Premium Package</div>
-          <div class="desc">10 hours coverage, 2 photographers, engagement shoot, online gallery</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="price">$2,500</div>
-          <a class="btn primary small" style="margin-top:8px; display:inline-block;"
-             href="booking-request.html?slug=jane-photography&supplier=Jane%20Photography&category=Photography&package=Premium%20Package&price=2500">Request to Book</a>
-        </div>
-      </div>
+      <div id="packagesList"></div>
     </section>
 
     <section class="block">
-      <h2>Availability — February 2027</h2>
+      <h2 id="availabilityHeading">Availability</h2>
       <div class="avail-grid">
         <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
         <div class="open">1</div><div class="open">2</div><div class="booked">3</div><div class="open">4</div>
@@ -118,16 +84,7 @@
 
     <section class="block">
       <h2>Reviews</h2>
-      <div class="review">
-        <div class="stars">★★★★★</div>
-        <p>Jane made us feel completely at ease all day. The photos captured moments we didn't even realise she'd taken.</p>
-        <div class="name">Sasha & Filip, married November 2026</div>
-      </div>
-      <div class="review">
-        <div class="stars">★★★★★</div>
-        <p>Professional, punctual, and the gallery was ready within a week. Couldn't recommend more highly.</p>
-        <div class="name">Riley & Morgan, married June 2026</div>
-      </div>
+      <div id="reviewsList"></div>
     </section>
   </div>
 
@@ -136,71 +93,229 @@
   </footer>
 
   <script>
-    // Load current saved state for this one supplier (Jane Photography)
-    // on page open, then wire up the same save/unsave toggle used on
-    // supplier-list.html.
+    // ============================================
+    // SUPPLIER DATA
+    // One object per example supplier, keyed by the same slug used
+    // on supplier-list.html's cards. This is the same kind of
+    // "display lookup table" idea as statusBadge() on my-wedding.html
+    // — the slug in the URL is real (it says which card was clicked),
+    // this just holds what to show for each known slug.
+    // ============================================
+    var SUPPLIERS = {
+      'jane-photography': {
+        name: 'Jane Photography', category: 'Photography', location: 'Melbourne, VIC · Travels up to 100km',
+        stars: '★★★★★', ratingText: '4.9 (86 reviews)', coverSeed: 'vowza-photo1',
+        about: 'Documentary-style wedding photography with a focus on candid, unposed moments. Based in Melbourne, available for weddings across Victoria.',
+        gallerySeeds: ['vowza-g1', 'vowza-g2', 'vowza-g3', 'vowza-g4', 'vowza-g5', 'vowza-g6'],
+        services: ['Full-day wedding photography', 'Engagement shoots', 'Second photographer add-on', 'Same-day photo previews'],
+        packages: [
+          { name: 'Essential Package', desc: '6 hours coverage, 1 photographer, online gallery', price: '$1,500' },
+          { name: 'Premium Package', desc: '10 hours coverage, 2 photographers, engagement shoot, online gallery', price: '$2,500', recommended: true }
+        ],
+        reviews: [
+          { stars: '★★★★★', text: "Jane made us feel completely at ease all day. The photos captured moments we didn't even realise she'd taken.", name: 'Sasha & Filip, married November 2026' },
+          { stars: '★★★★★', text: 'Professional, punctual, and the gallery was ready within a week. Could not recommend more highly.', name: 'Riley & Morgan, married June 2026' }
+        ]
+      },
+      'bloom-co': {
+        name: 'Bloom & Co', category: 'Florist', location: 'Geelong, VIC · Travels up to 80km',
+        stars: '★★★★★', ratingText: '4.8 (52 reviews)', coverSeed: 'vowza-florist1',
+        about: 'Seasonal, garden-style florals for weddings across the Geelong and Bellarine Peninsula region, from bouquets to full reception styling.',
+        gallerySeeds: ['vowza-fg1', 'vowza-fg2', 'vowza-fg3', 'vowza-fg4', 'vowza-fg5', 'vowza-fg6'],
+        services: ['Bridal bouquet & bridesmaid posies', 'Ceremony arbour & aisle florals', 'Reception centrepieces', 'Delivery & on-site setup'],
+        packages: [
+          { name: 'Essentials Package', desc: 'Bridal bouquet, 3 bridesmaid posies, 2 buttonholes', price: '$650' },
+          { name: 'Full Styling Package', desc: 'Bridal party florals, ceremony arbour, 8 reception centrepieces', price: '$1,850', recommended: true }
+        ],
+        reviews: [
+          { stars: '★★★★★', text: 'The bouquets were even more beautiful in person than the mockup. Every detail was considered.', name: 'Priya & Daniel, married November 2026' },
+          { stars: '★★★★☆', text: 'Lovely to work with and very responsive leading up to the big day.', name: 'Emma & Jack, married March 2026' }
+        ]
+      },
+      'dj-marco-live': {
+        name: 'DJ Marco Live', category: 'DJ', location: 'Melbourne, VIC · Travels state-wide',
+        stars: '★★★★☆', ratingText: '4.6 (34 reviews)', coverSeed: 'vowza-dj1',
+        about: 'High-energy wedding DJ with over 10 years of experience reading a room — ceremony, cocktail hour and reception, all handled by one act.',
+        gallerySeeds: ['vowza-dg1', 'vowza-dg2', 'vowza-dg3', 'vowza-dg4', 'vowza-dg5', 'vowza-dg6'],
+        services: ['Ceremony sound & music', 'Cocktail hour playlist', 'Reception MC & DJ set', 'Dance floor lighting'],
+        packages: [
+          { name: 'Reception Only', desc: '5 hours reception DJ + MC, basic dance floor lighting', price: '$1,100' },
+          { name: 'Full Day Package', desc: 'Ceremony sound, cocktail hour, 6 hours reception, premium lighting rig', price: '$1,900', recommended: true }
+        ],
+        reviews: [
+          { stars: '★★★★★', text: 'Marco read the room perfectly all night — dance floor was full from the first song to the last.', name: 'Aisha & Tom, married October 2026' },
+          { stars: '★★★★☆', text: 'Great communication beforehand and a smooth night. Would book again.', name: 'Liam & Grace, married August 2026' }
+        ]
+      },
+      'studio-belle': {
+        name: 'Studio Belle', category: 'Hair & Makeup', location: 'Melbourne, VIC · Mobile service',
+        stars: '★★★★★', ratingText: '5.0 (61 reviews)', coverSeed: 'vowza-hmu1',
+        about: 'Bridal hair and makeup artistry with an on-location team, specialising in natural, long-wearing looks for the whole bridal party.',
+        gallerySeeds: ['vowza-hg1', 'vowza-hg2', 'vowza-hg3', 'vowza-hg4', 'vowza-hg5', 'vowza-hg6'],
+        services: ['Bridal trial session', 'Wedding day hair & makeup', 'Bridal party styling', 'Touch-up kit provided'],
+        packages: [
+          { name: 'Bride Only', desc: 'Trial session + wedding day hair and makeup for the bride', price: '$480' },
+          { name: 'Bridal Party Package', desc: 'Bride + up to 4 bridesmaids, on-location, touch-up kit included', price: '$1,350', recommended: true }
+        ],
+        reviews: [
+          { stars: '★★★★★', text: 'My makeup lasted through happy tears, dancing, and 30-degree heat. Exactly what I asked for.', name: 'Chloe & Ben, married January 2027' },
+          { stars: '★★★★★', text: 'The whole bridal party felt gorgeous and completely looked after all morning.', name: 'Zara & Nate, married December 2026' }
+        ]
+      },
+      'reel-moments': {
+        name: 'Reel Moments', category: 'Videography', location: 'Ballarat, VIC · Travels up to 150km',
+        stars: '★★★★☆', ratingText: '4.7 (29 reviews)', coverSeed: 'vowza-video1',
+        about: 'Cinematic wedding films that favour genuine moments over staged shots — a highlight reel plus full ceremony and speeches footage.',
+        gallerySeeds: ['vowza-vg1', 'vowza-vg2', 'vowza-vg3', 'vowza-vg4', 'vowza-vg5', 'vowza-vg6'],
+        services: ['Ceremony filming', 'Speeches & reception coverage', 'Same-day teaser edit', 'Full highlight film (8-12 min)'],
+        packages: [
+          { name: 'Highlights Package', desc: '6 hours coverage, 4-6 minute highlight film', price: '$1,900' },
+          { name: 'Full Day Cinematic', desc: '10 hours coverage, full highlight film, ceremony & speeches in full, same-day teaser', price: '$3,200', recommended: true }
+        ],
+        reviews: [
+          { stars: '★★★★★', text: 'We cried watching the highlight film. It captured exactly how the day felt, not just how it looked.', name: 'Mia & Connor, married May 2026' },
+          { stars: '★★★★☆', text: 'Unobtrusive on the day and the final film was worth every cent.', name: 'Harriet & Sam, married July 2026' }
+        ]
+      },
+      'anna-hart-celebrant': {
+        name: 'Anna Hart, Celebrant', category: 'Celebrant', location: 'Melbourne, VIC · Travels state-wide',
+        stars: '★★★★★', ratingText: '4.9 (40 reviews)', coverSeed: 'vowza-celebrant1',
+        about: 'Warm, personalised ceremonies that sound like you, not a script — legal paperwork handled, rehearsal included.',
+        gallerySeeds: ['vowza-cg1', 'vowza-cg2', 'vowza-cg3', 'vowza-cg4', 'vowza-cg5', 'vowza-cg6'],
+        services: ['Ceremony scripting & personalisation', 'Legal paperwork & lodgement', 'Rehearsal attendance', 'PA system for outdoor ceremonies'],
+        packages: [
+          { name: 'Ceremony Package', desc: 'Personalised ceremony, legal paperwork, one planning call', price: '$650' },
+          { name: 'Complete Package', desc: 'Personalised ceremony, legal paperwork, rehearsal attendance, PA system included', price: '$950', recommended: true }
+        ],
+        reviews: [
+          { stars: '★★★★★', text: 'Anna took the time to actually get to know us, and it showed in every word of the ceremony.', name: 'Noah & Ivy, married February 2027' },
+          { stars: '★★★★★', text: 'Calm, warm, and completely unflappable when it started raining mid-ceremony.', name: 'Ruby & Owen, married April 2026' }
+        ]
+      }
+    };
+
+    // Read ?slug=... from the URL, defaulting to Jane Photography so
+    // any old link without a slug (or a mistyped one) still shows
+    // something reasonable instead of a blank page.
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('slug');
+    var supplier = SUPPLIERS[slug] || SUPPLIERS['jane-photography'];
+    if (!SUPPLIERS[slug]) slug = 'jane-photography';
+
+    function img(seed, w, h) {
+      return 'https://picsum.photos/seed/' + seed + '/' + w + '/' + h;
+    }
+
+    // Fill in every part of the page from the matched supplier's data
+    document.getElementById('pageTitle').textContent = supplier.name + ' — Vowza';
+    document.getElementById('heroImg').src = img(supplier.coverSeed, 700, 525);
+    document.getElementById('heroImg').alt = supplier.name + ' cover image';
+    document.getElementById('supCategory').textContent = supplier.category;
+    document.getElementById('supName').textContent = supplier.name;
+    document.getElementById('supLocation').textContent = supplier.location;
+    document.getElementById('supStars').textContent = supplier.stars;
+    document.getElementById('supRatingText').textContent = supplier.ratingText;
+    document.getElementById('supAbout').textContent = supplier.about;
+    document.getElementById('availabilityHeading').textContent = 'Availability — February 2027';
+
+    var galleryClasses = ['tall', '', 'wide', '', '', 'tall'];
+    var galleryHtml = '';
+    supplier.gallerySeeds.forEach(function (seed, i) {
+      var cls = galleryClasses[i] || '';
+      var dims = cls === 'tall' ? [300, 600] : (cls === 'wide' ? [600, 300] : [300, 300]);
+      galleryHtml += '<img class="' + cls + '" src="' + img(seed, dims[0], dims[1]) + '" alt="Portfolio image ' + (i + 1) + '">';
+    });
+    document.getElementById('gallery').innerHTML = galleryHtml;
+
+    document.getElementById('servicesList').innerHTML = supplier.services.map(function (s) {
+      return '<li>' + s + '</li>';
+    }).join('');
+
+    document.getElementById('packagesList').innerHTML = supplier.packages.map(function (p) {
+      var bookingUrl = 'booking-request.html?slug=' + encodeURIComponent(slug) +
+        '&supplier=' + encodeURIComponent(supplier.name) +
+        '&category=' + encodeURIComponent(supplier.category) +
+        '&package=' + encodeURIComponent(p.name) +
+        '&price=' + encodeURIComponent(p.price.replace(/[^0-9]/g, ''));
+      return '<div class="package' + (p.recommended ? ' recommended' : '') + '">' +
+        '<div><div class="name">' + p.name + '</div><div class="desc">' + p.desc + '</div></div>' +
+        '<div style="text-align:right;"><div class="price">' + p.price + '</div>' +
+        '<a class="btn primary small" style="margin-top:8px; display:inline-block;" href="' + bookingUrl + '">Request to Book</a></div></div>';
+    }).join('');
+
+    document.getElementById('reviewsList').innerHTML = supplier.reviews.map(function (r) {
+      return '<div class="review"><div class="stars">' + r.stars + '</div><p>' + r.text + '</p><div class="name">' + r.name + '</div></div>';
+    }).join('');
+
+    var saveBtn = document.getElementById('saveBtn');
+    saveBtn.dataset.slug = slug;
+    saveBtn.dataset.name = supplier.name;
+    saveBtn.dataset.category = supplier.category;
+
+    // ============================================
+    // SAVE BUTTON: same save/unsave toggle pattern used on
+    // supplier-list.html, just for this one supplier's button.
+    // ============================================
     (async function () {
       var userResult = await supabaseClient.auth.getUser();
+      document.body.style.visibility = 'visible';
       if (!userResult.data.user) return;
 
-      var btn = document.querySelector('.save-btn');
       var savedResult = await supabaseClient
         .from('saved_suppliers')
         .select('id')
         .eq('user_id', userResult.data.user.id)
-        .eq('supplier_slug', btn.dataset.slug)
+        .eq('supplier_slug', slug)
         .maybeSingle();
 
       if (savedResult.data) {
-        btn.textContent = '♥ Saved';
-        btn.classList.add('saved');
+        saveBtn.textContent = '♥ Saved';
+        saveBtn.classList.add('saved');
       }
     })();
 
-    document.querySelectorAll('.save-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        var userResult = await supabaseClient.auth.getUser();
-        if (!userResult.data.user) {
-          window.location.href = 'login.html';
+    saveBtn.addEventListener('click', async function () {
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      var userId = userResult.data.user.id;
+      var isSaved = saveBtn.classList.contains('saved');
+
+      if (isSaved) {
+        saveBtn.disabled = true;
+        var deleteResult = await supabaseClient
+          .from('saved_suppliers')
+          .delete()
+          .eq('user_id', userId)
+          .eq('supplier_slug', slug);
+
+        saveBtn.disabled = false;
+        if (deleteResult.error) {
+          alert('Could not remove: ' + deleteResult.error.message);
           return;
         }
+        saveBtn.textContent = '♥ Save';
+        saveBtn.classList.remove('saved');
+      } else {
+        saveBtn.disabled = true;
+        var insertResult = await supabaseClient.from('saved_suppliers').insert({
+          user_id: userId,
+          supplier_slug: slug,
+          supplier_name: supplier.name,
+          category: supplier.category
+        });
 
-        var userId = userResult.data.user.id;
-        var isSaved = btn.classList.contains('saved');
-
-        if (isSaved) {
-          btn.disabled = true;
-          var deleteResult = await supabaseClient
-            .from('saved_suppliers')
-            .delete()
-            .eq('user_id', userId)
-            .eq('supplier_slug', btn.dataset.slug);
-
-          btn.disabled = false;
-          if (deleteResult.error) {
-            alert('Could not remove: ' + deleteResult.error.message);
-            return;
-          }
-          btn.textContent = '♥ Save';
-          btn.classList.remove('saved');
-        } else {
-          btn.disabled = true;
-          var insertResult = await supabaseClient.from('saved_suppliers').insert({
-            user_id: userId,
-            supplier_slug: btn.dataset.slug,
-            supplier_name: btn.dataset.name,
-            category: btn.dataset.category
-          });
-
-          btn.disabled = false;
-          if (insertResult.error) {
-            alert('Could not save: ' + insertResult.error.message);
-            return;
-          }
-          btn.textContent = '♥ Saved';
-          btn.classList.add('saved');
+        saveBtn.disabled = false;
+        if (insertResult.error) {
+          alert('Could not save: ' + insertResult.error.message);
+          return;
         }
-      });
+        saveBtn.textContent = '♥ Saved';
+        saveBtn.classList.add('saved');
+      }
     });
   </script>
 
