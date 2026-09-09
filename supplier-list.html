@@ -145,20 +145,25 @@
 
   <!-- ============================================
        JAVASCRIPT: runs as soon as this page loads.
-       If someone's logged in, fetches THEIR wedding profile and
-       personalizes the page. If not, the page just shows its
-       default content — browsing here doesn't require an account.
+       Handles filtering, personalizing from the couple's wedding
+       profile, loading REAL suppliers from the database, and the
+       Save button — all working together.
        ============================================ -->
   <script>
+    // Small helper: since supplier names now come from the database
+    // (not hand-typed HTML), escape them before inserting as HTML so
+    // a stray character in a business name can't break the page.
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
     // ============================================
-    // REAL FILTERING — this is what was missing before. The chips
-    // getting highlighted was only ever cosmetic; nothing actually
-    // hid non-matching cards. Now:
-    //  - activeCategories is the SET of categories currently selected
-    //    (can be more than one — a couple might want to see several
-    //    categories at once, not just their original wedding-setup pick)
-    //  - Clicking any chip toggles it, and re-runs the filter
-    //  - Clicking "All categories" clears every specific selection
+    // FILTERING — unchanged in spirit from before, but chip click
+    // listeners are now attached through one shared function, since
+    // new chips can appear dynamically once real suppliers introduce
+    // a category that doesn't have a chip yet.
     // ============================================
     var activeCategories = new Set();
     var availableOnlyFilter = false;
@@ -187,10 +192,9 @@
       });
     }
 
-    // Every chip is clickable — this is the fix for "I can't edit my
-    // selection." Clicking always works, regardless of how a chip
-    // first became active (whether from wedding-setup or a previous click).
-    document.querySelectorAll('#filterChips span').forEach(function (chip) {
+    function bindChipClick(chip) {
+      if (chip.dataset.bound) return; // avoid double-binding the same chip
+      chip.dataset.bound = 'true';
       chip.addEventListener('click', function () {
         if (chip.hasAttribute('data-all')) {
           activeCategories.clear();
@@ -207,7 +211,25 @@
         updateChipVisuals();
         applyFilters();
       });
-    });
+    }
+
+    document.querySelectorAll('#filterChips span').forEach(bindChipClick);
+
+    // If a real supplier's category has no existing chip (e.g. "DJ /
+    // Music" isn't the same string as the "DJ" chip), create one on
+    // the fly so it's still filterable.
+    function ensureChipForCategory(category) {
+      if (!category) return;
+      var exists = Array.from(document.querySelectorAll('#filterChips span[data-category]'))
+        .some(function (c) { return c.dataset.category === category; });
+      if (exists) return;
+
+      var chip = document.createElement('span');
+      chip.dataset.category = category;
+      chip.textContent = category;
+      document.querySelector('#filterChips').insertBefore(chip, document.querySelector('[data-available]'));
+      bindChipClick(chip);
+    }
 
     (async function () {
       var userResult = await supabaseClient.auth.getUser();
@@ -223,7 +245,6 @@
 
       var profile = result.data;
 
-      // Update the heading with the real wedding date, if one was entered
       if (profile.wedding_date) {
         var formatted = new Date(profile.wedding_date + 'T00:00:00').toLocaleDateString('en-AU', {
           day: 'numeric', month: 'long', year: 'numeric'
@@ -231,11 +252,6 @@
         document.getElementById('pageDate').textContent = 'Suppliers available for ' + formatted;
       }
 
-      // categories was stored as one comma-separated text field —
-      // split() turns "Photography,Florist,DJ" back into a real list.
-      // This now actually FILTERS the cards too, not just highlights
-      // the chips — but since the chips are all clickable, the couple
-      // can freely change this starting point afterward.
       if (profile.categories) {
         profile.categories.split(',').forEach(function (cat) {
           activeCategories.add(cat.trim());
@@ -246,17 +262,59 @@
     })();
 
     // ============================================
-    // SAVE BUTTONS: every card's Save button reads its own
-    // data-* attributes and inserts/removes a row in saved_suppliers,
-    // tied to whichever account is logged in. Clicking again on an
-    // already-saved supplier removes it (a toggle, not a one-way action).
+    // REAL SUPPLIERS — fetches every approved row from the suppliers
+    // table and appends a card for each, alongside the 6 curated
+    // examples above. Real businesses only show what's actually
+    // known about them (name, category, location) — no invented
+    // ratings, prices, or "available on your date" claims, since
+    // none of that is real data for them yet.
     // ============================================
-    (async function () {
-      var userResult = await supabaseClient.auth.getUser();
-      if (!userResult.data.user) return; // not logged in — buttons stay in default "Save" state
+    async function loadRealSuppliers() {
+      var result = await supabaseClient
+        .from('suppliers')
+        .select('*')
+        .eq('approved', true)
+        .order('created_at', { ascending: false });
 
-      // Find out which of these suppliers (if any) this account has
-      // already saved, so the buttons open in the correct state.
+      if (result.error || !result.data) return;
+
+      var grid = document.querySelector('.grid');
+
+      result.data.forEach(function (supplier) {
+        ensureChipForCategory(supplier.category);
+
+        var seed = 'vowza-real-' + supplier.id;
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML =
+          '<img class="photo" src="https://picsum.photos/seed/' + encodeURIComponent(seed) + '/600/450" alt="' + escapeHtml(supplier.business_name) + ' portfolio image">' +
+          '<div class="body">' +
+            '<div class="category">' + escapeHtml(supplier.category) + '</div>' +
+            '<h3>' + escapeHtml(supplier.business_name) + '</h3>' +
+            '<div class="meta"><span>' + escapeHtml(supplier.location) + '</span><span></span></div>' +
+            '<p style="font-size:12px; color:var(--ink-soft); margin:2px 0 14px;">New to Vowza — no reviews yet</p>' +
+            '<div class="actions">' +
+              '<a class="btn primary" href="supplier-profile.html?slug=' + encodeURIComponent(supplier.id) + '">View Profile</a>' +
+              '<button type="button" class="btn ghost save-btn" data-slug="' + supplier.id + '" data-name="' + escapeHtml(supplier.business_name) + '" data-category="' + escapeHtml(supplier.category) + '">♥ Save</button>' +
+            '</div>' +
+          '</div>';
+        grid.appendChild(card);
+      });
+
+      applyFilters();       // include the new cards in whatever filter is active
+      applySavedStates();   // mark any of the new cards already saved by this account
+    }
+
+    // ============================================
+    // SAVE BUTTONS — now uses EVENT DELEGATION (listening on the grid
+    // itself, not on each individual button) specifically so this
+    // still works on cards added dynamically by loadRealSuppliers()
+    // above, not just the 6 that existed when the page first loaded.
+    // ============================================
+    async function applySavedStates() {
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) return;
+
       var savedResult = await supabaseClient
         .from('saved_suppliers')
         .select('supplier_slug')
@@ -270,55 +328,57 @@
           btn.classList.add('saved');
         }
       });
-    })();
+    }
+    applySavedStates();
 
-    document.querySelectorAll('.save-btn').forEach(function (btn) {
-      btn.addEventListener('click', async function () {
-        var userResult = await supabaseClient.auth.getUser();
-        if (!userResult.data.user) {
-          window.location.href = 'login.html';
+    document.querySelector('.grid').addEventListener('click', async function (e) {
+      var btn = e.target.closest('.save-btn');
+      if (!btn) return;
+
+      var userResult = await supabaseClient.auth.getUser();
+      if (!userResult.data.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      var userId = userResult.data.user.id;
+      var isSaved = btn.classList.contains('saved');
+
+      if (isSaved) {
+        btn.disabled = true;
+        var deleteResult = await supabaseClient
+          .from('saved_suppliers')
+          .delete()
+          .eq('user_id', userId)
+          .eq('supplier_slug', btn.dataset.slug);
+
+        btn.disabled = false;
+        if (deleteResult.error) {
+          alert('Could not remove: ' + deleteResult.error.message);
           return;
         }
+        btn.textContent = '♥ Save';
+        btn.classList.remove('saved');
+      } else {
+        btn.disabled = true;
+        var insertResult = await supabaseClient.from('saved_suppliers').insert({
+          user_id: userId,
+          supplier_slug: btn.dataset.slug,
+          supplier_name: btn.dataset.name,
+          category: btn.dataset.category
+        });
 
-        var userId = userResult.data.user.id;
-        var isSaved = btn.classList.contains('saved');
-
-        if (isSaved) {
-          // UNSAVE: delete the matching row for this account + supplier
-          btn.disabled = true;
-          var deleteResult = await supabaseClient
-            .from('saved_suppliers')
-            .delete()
-            .eq('user_id', userId)
-            .eq('supplier_slug', btn.dataset.slug);
-
-          btn.disabled = false;
-          if (deleteResult.error) {
-            alert('Could not remove: ' + deleteResult.error.message);
-            return;
-          }
-          btn.textContent = '♥ Save';
-          btn.classList.remove('saved');
-        } else {
-          // SAVE: insert a new row
-          btn.disabled = true;
-          var insertResult = await supabaseClient.from('saved_suppliers').insert({
-            user_id: userId,
-            supplier_slug: btn.dataset.slug,
-            supplier_name: btn.dataset.name,
-            category: btn.dataset.category
-          });
-
-          btn.disabled = false;
-          if (insertResult.error) {
-            alert('Could not save: ' + insertResult.error.message);
-            return;
-          }
-          btn.textContent = '♥ Saved';
-          btn.classList.add('saved');
+        btn.disabled = false;
+        if (insertResult.error) {
+          alert('Could not save: ' + insertResult.error.message);
+          return;
         }
-      });
+        btn.textContent = '♥ Saved';
+        btn.classList.add('saved');
+      }
     });
+
+    loadRealSuppliers();
   </script>
 
 </body>

@@ -194,69 +194,130 @@
       }
     };
 
-    // Read ?slug=... from the URL, defaulting to Jane Photography so
-    // any old link without a slug (or a mistyped one) still shows
-    // something reasonable instead of a blank page.
+    // Read ?slug=... from the URL. It's either one of the 6 curated
+    // demo suppliers above, or a real supplier's database ID (from a
+    // card built dynamically on supplier-list.html).
     var params = new URLSearchParams(window.location.search);
     var slug = params.get('slug');
-    var supplier = SUPPLIERS[slug] || SUPPLIERS['jane-photography'];
-    if (!SUPPLIERS[slug]) slug = 'jane-photography';
 
     function img(seed, w, h) {
       return 'https://picsum.photos/seed/' + seed + '/' + w + '/' + h;
     }
 
-    // Fill in every part of the page from the matched supplier's data
-    document.getElementById('pageTitle').textContent = supplier.name + ' — Vowza';
-    document.getElementById('heroImg').src = img(supplier.coverSeed, 700, 525);
-    document.getElementById('heroImg').alt = supplier.name + ' cover image';
-    document.getElementById('supCategory').textContent = supplier.category;
-    document.getElementById('supName').textContent = supplier.name;
-    document.getElementById('supLocation').textContent = supplier.location;
-    document.getElementById('supStars').textContent = supplier.stars;
-    document.getElementById('supRatingText').textContent = supplier.ratingText;
-    document.getElementById('supAbout').textContent = supplier.about;
-    document.getElementById('availabilityHeading').textContent = 'Availability — February 2027';
+    // Renders the page from one of the 6 curated demo objects above —
+    // unchanged from before.
+    function renderFullProfile(supplier) {
+      document.getElementById('pageTitle').textContent = supplier.name + ' — Vowza';
+      document.getElementById('heroImg').src = img(supplier.coverSeed, 700, 525);
+      document.getElementById('heroImg').alt = supplier.name + ' cover image';
+      document.getElementById('supCategory').textContent = supplier.category;
+      document.getElementById('supName').textContent = supplier.name;
+      document.getElementById('supLocation').textContent = supplier.location;
+      document.getElementById('supStars').textContent = supplier.stars;
+      document.getElementById('supRatingText').textContent = supplier.ratingText;
+      document.getElementById('supAbout').textContent = supplier.about;
+      document.getElementById('availabilityHeading').textContent = 'Availability — February 2027';
+      document.getElementById('availabilityHeading').closest('section').style.display = '';
 
-    var galleryClasses = ['tall', '', 'wide', '', '', 'tall'];
-    var galleryHtml = '';
-    supplier.gallerySeeds.forEach(function (seed, i) {
-      var cls = galleryClasses[i] || '';
-      var dims = cls === 'tall' ? [300, 600] : (cls === 'wide' ? [600, 300] : [300, 300]);
-      galleryHtml += '<img class="' + cls + '" src="' + img(seed, dims[0], dims[1]) + '" alt="Portfolio image ' + (i + 1) + '">';
-    });
-    document.getElementById('gallery').innerHTML = galleryHtml;
+      var galleryClasses = ['tall', '', 'wide', '', '', 'tall'];
+      var galleryHtml = '';
+      supplier.gallerySeeds.forEach(function (seed, i) {
+        var cls = galleryClasses[i] || '';
+        var dims = cls === 'tall' ? [300, 600] : (cls === 'wide' ? [600, 300] : [300, 300]);
+        galleryHtml += '<img class="' + cls + '" src="' + img(seed, dims[0], dims[1]) + '" alt="Portfolio image ' + (i + 1) + '">';
+      });
+      document.getElementById('gallery').innerHTML = galleryHtml;
 
-    document.getElementById('servicesList').innerHTML = supplier.services.map(function (s) {
-      return '<li>' + s + '</li>';
-    }).join('');
+      document.getElementById('servicesList').innerHTML = supplier.services.map(function (s) {
+        return '<li>' + s + '</li>';
+      }).join('');
 
-    document.getElementById('packagesList').innerHTML = supplier.packages.map(function (p) {
-      var bookingUrl = 'booking-request.html?slug=' + encodeURIComponent(slug) +
-        '&supplier=' + encodeURIComponent(supplier.name) +
-        '&category=' + encodeURIComponent(supplier.category) +
-        '&package=' + encodeURIComponent(p.name) +
-        '&price=' + encodeURIComponent(p.price.replace(/[^0-9]/g, ''));
-      return '<div class="package' + (p.recommended ? ' recommended' : '') + '">' +
-        '<div><div class="name">' + p.name + '</div><div class="desc">' + p.desc + '</div></div>' +
-        '<div style="text-align:right;"><div class="price">' + p.price + '</div>' +
-        '<a class="btn primary small" style="margin-top:8px; display:inline-block;" href="' + bookingUrl + '">Request to Book</a></div></div>';
-    }).join('');
+      document.getElementById('packagesList').innerHTML = supplier.packages.map(function (p) {
+        var bookingUrl = 'booking-request.html?slug=' + encodeURIComponent(slug) +
+          '&supplier=' + encodeURIComponent(supplier.name) +
+          '&category=' + encodeURIComponent(supplier.category) +
+          '&package=' + encodeURIComponent(p.name) +
+          '&price=' + encodeURIComponent(p.price.replace(/[^0-9]/g, ''));
+        return '<div class="package' + (p.recommended ? ' recommended' : '') + '">' +
+          '<div><div class="name">' + p.name + '</div><div class="desc">' + p.desc + '</div></div>' +
+          '<div style="text-align:right;"><div class="price">' + p.price + '</div>' +
+          '<a class="btn primary small" style="margin-top:8px; display:inline-block;" href="' + bookingUrl + '">Request to Book</a></div></div>';
+      }).join('');
 
-    document.getElementById('reviewsList').innerHTML = supplier.reviews.map(function (r) {
-      return '<div class="review"><div class="stars">' + r.stars + '</div><p>' + r.text + '</p><div class="name">' + r.name + '</div></div>';
-    }).join('');
+      document.getElementById('reviewsList').innerHTML = supplier.reviews.map(function (r) {
+        return '<div class="review"><div class="stars">' + r.stars + '</div><p>' + r.text + '</p><div class="name">' + r.name + '</div></div>';
+      }).join('');
+    }
 
-    var saveBtn = document.getElementById('saveBtn');
-    saveBtn.dataset.slug = slug;
-    saveBtn.dataset.name = supplier.name;
-    saveBtn.dataset.category = supplier.category;
+    // Renders the page from a REAL supplier row fetched from the
+    // database. Only shows what's genuinely known (name, category,
+    // location) and is honest about everything else — no invented
+    // portfolio, packages or reviews attributed to a real business
+    // that hasn't actually added them.
+    function renderRealProfile(row) {
+      document.getElementById('pageTitle').textContent = row.business_name + ' — Vowza';
+      document.getElementById('heroImg').src = img('vowza-real-' + row.id, 700, 525);
+      document.getElementById('heroImg').alt = row.business_name + ' cover image';
+      document.getElementById('supCategory').textContent = row.category || '';
+      document.getElementById('supName').textContent = row.business_name || '';
+      document.getElementById('supLocation').textContent = row.location || '';
+      document.getElementById('supStars').textContent = '';
+      document.getElementById('supRatingText').textContent = 'New to Vowza — no reviews yet';
+      document.getElementById('supAbout').textContent = "This supplier hasn't added a full profile yet. Send an enquiry to ask about availability, packages and pricing.";
 
-    // ============================================
-    // SAVE BUTTON: same save/unsave toggle pattern used on
-    // supplier-list.html, just for this one supplier's button.
-    // ============================================
+      document.getElementById('gallery').innerHTML =
+        '<p style="color:var(--ink-soft); font-size:14px; grid-column:1/-1;">No portfolio photos uploaded yet.</p>';
+
+      document.getElementById('servicesList').innerHTML =
+        '<li style="color:var(--ink-soft);">Not listed yet — ask the supplier directly.</li>';
+
+      var bookingUrl = 'booking-request.html?slug=' + encodeURIComponent(row.id) +
+        '&supplier=' + encodeURIComponent(row.business_name) +
+        '&category=' + encodeURIComponent(row.category || '') +
+        '&package=' + encodeURIComponent('General enquiry') +
+        '&price=0';
+      document.getElementById('packagesList').innerHTML =
+        '<p style="color:var(--ink-soft); font-size:14px; margin-bottom:16px;">No packages added yet — send a general enquiry to ask about pricing.</p>' +
+        '<a class="btn primary" href="' + bookingUrl + '">Send Enquiry</a>';
+
+      // No real availability data exists for these yet — hide the
+      // section entirely rather than show a fake calendar.
+      document.getElementById('availabilityHeading').closest('section').style.display = 'none';
+
+      document.getElementById('reviewsList').innerHTML =
+        '<p style="color:var(--ink-soft); font-size:14px;">No reviews yet.</p>';
+    }
+
     (async function () {
+      var supplier;
+
+      if (SUPPLIERS[slug]) {
+        supplier = SUPPLIERS[slug];
+        renderFullProfile(supplier);
+      } else if (slug) {
+        // Not one of the 6 demo suppliers — try it as a real
+        // supplier's database ID (this is how cards built dynamically
+        // on supplier-list.html link here).
+        var fetchResult = await supabaseClient.from('suppliers').select('*').eq('id', slug).maybeSingle();
+        if (fetchResult.data) {
+          supplier = { name: fetchResult.data.business_name, category: fetchResult.data.category };
+          renderRealProfile(fetchResult.data);
+        }
+      }
+
+      if (!supplier) {
+        // Nothing matched at all (bad or missing slug) — fall back
+        // to Jane Photography rather than show a blank page.
+        slug = 'jane-photography';
+        supplier = SUPPLIERS[slug];
+        renderFullProfile(supplier);
+      }
+
+      var saveBtn = document.getElementById('saveBtn');
+      saveBtn.dataset.slug = slug;
+      saveBtn.dataset.name = supplier.name;
+      saveBtn.dataset.category = supplier.category;
+
       var userResult = await supabaseClient.auth.getUser();
       document.body.style.visibility = 'visible';
       if (!userResult.data.user) return;
@@ -274,7 +335,8 @@
       }
     })();
 
-    saveBtn.addEventListener('click', async function () {
+    document.getElementById('saveBtn').addEventListener('click', async function () {
+      var saveBtn = this;
       var userResult = await supabaseClient.auth.getUser();
       if (!userResult.data.user) {
         window.location.href = 'login.html';
@@ -290,7 +352,7 @@
           .from('saved_suppliers')
           .delete()
           .eq('user_id', userId)
-          .eq('supplier_slug', slug);
+          .eq('supplier_slug', saveBtn.dataset.slug);
 
         saveBtn.disabled = false;
         if (deleteResult.error) {
@@ -303,9 +365,9 @@
         saveBtn.disabled = true;
         var insertResult = await supabaseClient.from('saved_suppliers').insert({
           user_id: userId,
-          supplier_slug: slug,
-          supplier_name: supplier.name,
-          category: supplier.category
+          supplier_slug: saveBtn.dataset.slug,
+          supplier_name: saveBtn.dataset.name,
+          category: saveBtn.dataset.category
         });
 
         saveBtn.disabled = false;

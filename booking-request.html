@@ -76,7 +76,10 @@
     var packagePrice = params.get('price') || '2500';
 
     document.getElementById('supplierSummary').textContent = supplierName + ' — ' + packageName;
-    document.getElementById('supplierPackageDisplay').value = supplierName + ' — ' + packageName + ' ($' + packagePrice + ')';
+    // For a real supplier's "General enquiry" (no real package/price yet),
+    // skip showing a misleading "$0" — just show the enquiry type plainly.
+    var priceSuffix = (packagePrice && packagePrice !== '0') ? ' ($' + packagePrice + ')' : '';
+    document.getElementById('supplierPackageDisplay').value = supplierName + ' — ' + packageName + priceSuffix;
 
     // AUTH GUARD + pre-fill from the couple's existing wedding profile,
     // so they're not retyping their date/location/guests here.
