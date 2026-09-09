@@ -44,6 +44,7 @@
         <div class="category" id="supCategory"></div>
         <h1 id="supName"></h1>
         <div class="location" id="supLocation"></div>
+        <div id="supLinks" style="font-size:13px; margin-bottom:6px;"></div>
         <div class="rating"><span class="stars" id="supStars"></span> <span id="supRatingText"></span></div>
         <p class="about" id="supAbout"></p>
         <div class="cta-row">
@@ -101,6 +102,15 @@
     // — the slug in the URL is real (it says which card was clicked),
     // this just holds what to show for each known slug.
     // ============================================
+    // Escapes a string before inserting it as HTML — used for any
+    // value that came from the database (not hand-typed), so a stray
+    // character in a website URL or business name can't break the page.
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
     var SUPPLIERS = {
       'jane-photography': {
         name: 'Jane Photography', category: 'Photography', location: 'Melbourne, VIC · Travels up to 100km',
@@ -213,6 +223,7 @@
       document.getElementById('supCategory').textContent = supplier.category;
       document.getElementById('supName').textContent = supplier.name;
       document.getElementById('supLocation').textContent = supplier.location;
+      document.getElementById('supLinks').innerHTML = ''; // demo suppliers don't have real website/instagram data
       document.getElementById('supStars').textContent = supplier.stars;
       document.getElementById('supRatingText').textContent = supplier.ratingText;
       document.getElementById('supAbout').textContent = supplier.about;
@@ -263,6 +274,21 @@
       document.getElementById('supCategory').textContent = row.category || '';
       document.getElementById('supName').textContent = row.business_name || '';
       document.getElementById('supLocation').textContent = row.location || '';
+
+      // Show website/Instagram links only when the supplier actually
+      // provided them — omit either one individually rather than
+      // showing a broken or empty link.
+      var links = [];
+      if (row.website) {
+        var websiteHref = /^https?:\/\//.test(row.website) ? row.website : 'https://' + row.website;
+        links.push('<a href="' + escapeHtml(websiteHref) + '" target="_blank" rel="noopener" style="color:var(--evergreen); font-weight:500;">Website</a>');
+      }
+      if (row.instagram) {
+        var handle = row.instagram.replace(/^@/, '');
+        links.push('<a href="https://instagram.com/' + encodeURIComponent(handle) + '" target="_blank" rel="noopener" style="color:var(--evergreen); font-weight:500;">Instagram</a>');
+      }
+      document.getElementById('supLinks').innerHTML = links.join(' &nbsp;\u00b7&nbsp; ');
+
       document.getElementById('supStars').textContent = '';
       document.getElementById('supRatingText').textContent = 'New to Vowza — no reviews yet';
       document.getElementById('supAbout').textContent = "This supplier hasn't added a full profile yet. Send an enquiry to ask about availability, packages and pricing.";
