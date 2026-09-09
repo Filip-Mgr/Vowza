@@ -283,11 +283,14 @@
       result.data.forEach(function (supplier) {
         ensureChipForCategory(supplier.category);
 
+        // Use a real uploaded photo if this supplier has one — falls
+        // back to the placeholder only when image_url is empty/null.
         var seed = 'vowza-real-' + supplier.id;
+        var photoUrl = supplier.image_url || ('https://picsum.photos/seed/' + encodeURIComponent(seed) + '/600/450');
         var card = document.createElement('div');
         card.className = 'card';
         card.innerHTML =
-          '<img class="photo" src="https://picsum.photos/seed/' + encodeURIComponent(seed) + '/600/450" alt="' + escapeHtml(supplier.business_name) + ' portfolio image">' +
+          '<img class="photo" src="' + photoUrl + '" alt="' + escapeHtml(supplier.business_name) + ' portfolio image">' +
           '<div class="body">' +
             '<div class="category">' + escapeHtml(supplier.category) + '</div>' +
             '<h3>' + escapeHtml(supplier.business_name) + '</h3>' +

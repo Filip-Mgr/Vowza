@@ -256,7 +256,9 @@
     // that hasn't actually added them.
     function renderRealProfile(row) {
       document.getElementById('pageTitle').textContent = row.business_name + ' — Vowza';
-      document.getElementById('heroImg').src = img('vowza-real-' + row.id, 700, 525);
+      // Use a real uploaded photo if this supplier has one, otherwise
+      // the same placeholder used on the Discover page.
+      document.getElementById('heroImg').src = row.image_url || img('vowza-real-' + row.id, 700, 525);
       document.getElementById('heroImg').alt = row.business_name + ' cover image';
       document.getElementById('supCategory').textContent = row.category || '';
       document.getElementById('supName').textContent = row.business_name || '';
