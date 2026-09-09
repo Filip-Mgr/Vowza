@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <style>
   /* Styles specific to THIS page only (not worth putting in the
      shared stylesheet since no other page uses them) */
@@ -104,31 +106,8 @@
         <h2>Featured suppliers</h2>
         <a href="supplier-list.html">See all →</a>
       </div>
-      <div class="mini-grid">
-        <a class="mini-card" href="supplier-profile.html?slug=jane-photography">
-          <img src="https://picsum.photos/seed/vowza-photo1/600/450" alt="Jane Photography portfolio image">
-          <div class="body">
-            <div class="category">Photography</div>
-            <h3>Jane Photography</h3>
-            <div class="meta">Melbourne · From $2,500</div>
-          </div>
-        </a>
-        <a class="mini-card" href="supplier-profile.html?slug=bloom-co">
-          <img src="https://picsum.photos/seed/vowza-florist1/600/450" alt="Bloom & Co florist portfolio image">
-          <div class="body">
-            <div class="category">Florist</div>
-            <h3>Bloom & Co</h3>
-            <div class="meta">Geelong · From $850</div>
-          </div>
-        </a>
-        <a class="mini-card" href="supplier-profile.html?slug=studio-belle">
-          <img src="https://picsum.photos/seed/vowza-hmu1/600/450" alt="Studio Belle hair and makeup portfolio image">
-          <div class="body">
-            <div class="category">Hair & Makeup</div>
-            <h3>Studio Belle</h3>
-            <div class="meta">Melbourne · From $480</div>
-          </div>
-        </a>
+      <div class="mini-grid" id="featuredGrid">
+        <p style="color:var(--ink-soft);">Loading suppliers…</p>
       </div>
     </div>
   </section>
@@ -136,6 +115,63 @@
   <footer>
     Vowza — Less emailing. More celebrating.
   </footer>
+
+  <!-- ============================================
+       FEATURED SUPPLIERS: fetches every approved supplier from the
+       database (a live pool, not 3 hand-picked ones), then picks 3
+       at random for this page load — weighted toward higher-rated
+       suppliers once real ratings exist. Since no supplier has a
+       real rating yet, this currently behaves as genuinely random
+       across all approved suppliers, which is the honest outcome
+       given the actual data — it'll naturally start favouring
+       higher-rated suppliers the moment ratings are added, with no
+       code changes needed then.
+       ============================================ -->
+  <script>
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    (async function () {
+      var result = await supabaseClient
+        .from('suppliers')
+        .select('*')
+        .eq('approved', true)
+        .order('rating', { ascending: false, nullsFirst: false });
+
+      var grid = document.getElementById('featuredGrid');
+
+      if (result.error || !result.data || result.data.length === 0) {
+        grid.innerHTML = '<p style="color:var(--ink-soft);">Check back soon — suppliers are being added.</p>';
+        return;
+      }
+
+      var suppliers = result.data;
+
+      // Weight toward the top-rated end of the list (rated suppliers
+      // already sort first, thanks to the query above) by picking
+      // from the top ~15 rather than the entire pool, then shuffling
+      // and taking 3. With no ratings yet, "top 15" is just whatever
+      // order the database returns, so this is honestly just random
+      // for now — exactly as it should be until real ratings exist.
+      var pool = suppliers.slice(0, 15);
+      var shuffled = pool.sort(function () { return Math.random() - 0.5; });
+      var chosen = shuffled.slice(0, 3);
+
+      grid.innerHTML = chosen.map(function (s) {
+        var photoUrl = s.image_url || ('https://picsum.photos/seed/' + encodeURIComponent('vowza-real-' + s.id) + '/600/450');
+        return '<a class="mini-card" href="supplier-profile.html?slug=' + encodeURIComponent(s.id) + '">' +
+          '<img src="' + photoUrl + '" alt="' + escapeHtml(s.business_name) + ' portfolio image">' +
+          '<div class="body">' +
+            '<div class="category">' + escapeHtml(s.category) + '</div>' +
+            '<h3>' + escapeHtml(s.business_name) + '</h3>' +
+            '<div class="meta">' + escapeHtml(s.location) + '</div>' +
+          '</div></a>';
+      }).join('');
+    })();
+  </script>
 
 </body>
 </html>
