@@ -1,54 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Welcome to Vowza</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fdf6f0;
-      text-align: center;
-      padding: 50px;
-    }
-    img {
-      width: 200px;
-      border-radius: 50%;
-      border: 4px solid #2F5496;
-    }
-    h1 {
-      color: #2F5496;
-    }
-    p {
-      font-size: 18px;
-      color: #444;
-      max-width: 500px;
-      margin: 20px auto;
-      line-height: 1.5;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vowza — Less emailing. More celebrating.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  /* Styles specific to THIS page only (not worth putting in the
+     shared stylesheet since no other page uses them) */
+  .hero { text-align: center; padding: 90px 24px 70px; }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 52px;
+    max-width: 640px;
+    margin: 0 auto 18px;
+    line-height: 1.15;
+  }
+  .hero p { font-size: 16px; color: var(--ink-soft); max-width: 460px; margin: 0 auto 34px; }
+  .hero .cta-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+  section.steps { padding: 20px 0 70px; }
+  .steps .wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .step { text-align: center; }
+  .step .num { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; color: var(--evergreen); margin-bottom: 8px; }
+  .step h3 { font-size: 16px; margin: 0 0 8px; }
+  .step p { font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0; }
+
+  section.featured { padding: 60px 0 80px; border-top: 1px solid var(--border); }
+  .featured .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 26px; }
+  .featured h2 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 28px; margin: 0; }
+  .featured .head a { font-size: 14px; color: var(--evergreen); }
+  .featured .head a:hover { text-decoration: underline; }
+  .mini-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+  .mini-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .mini-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(43,38,32,0.08); }
+  .mini-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+  .mini-card .body { padding: 16px; }
+  .mini-card .category { font-size: 12px; color: var(--ink-soft); }
+  .mini-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 600; margin: 4px 0 6px; }
+  .mini-card .meta { font-size: 13px; color: var(--ink-soft); }
+
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 36px; }
+    .steps .wrap { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-  <img src="photo.jpg" alt="This is me">
-  <h1>Vowza</h1>
-  <p>Lets get started with Vowza</p>
+
+  <!-- HEADER: matches the brief's "Main Navigation" spec for couples:
+       Home | Discover | My Wedding | Saved | Profile -->
+  <header class="site">
+    <div class="wrap">
+      <a class="wordmark" href="index.html">Vowza</a>
+      <nav>
+        <a href="index.html" class="active">Home</a>
+        <a href="supplier-list.html">Discover</a>
+        <a href="my-wedding.html">My Wedding</a>
+        <a href="shortlist.html">Saved</a>
+        <a href="couple-profile.html">Profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO: headline + the two main calls to action -->
+  <section class="hero">
+    <h1>Find suppliers who fit your date, style and budget — and book them in one place.</h1>
+    <p>Less emailing. More celebrating.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="start.html">Get Started</a>
+      <a class="btn ghost" href="supplier-list.html">Browse Suppliers</a>
+    </div>
+  </section>
+
+  <!-- 3-STEP EXPLAINER -->
+  <section class="steps">
+    <div class="wrap">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Discover</h3>
+        <p>Search suppliers filtered by your wedding date, location and budget.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Compare</h3>
+        <p>View portfolios, packages and reviews side by side, save your favourites.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Book</h3>
+        <p>Send a booking request and manage everything from one dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED SUPPLIERS -->
+  <section class="featured">
+    <div class="wrap">
+      <div class="head">
+        <h2>Featured suppliers</h2>
+        <a href="supplier-list.html">See all →</a>
+      </div>
+      <div class="mini-grid" id="featuredGrid">
+        <p style="color:var(--ink-soft);">Loading suppliers…</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Vowza — Less emailing. More celebrating.
+  </footer>
+
+  <!-- ============================================
+       FEATURED SUPPLIERS: fetches every approved supplier from the
+       database (a live pool, not 3 hand-picked ones), then picks 3
+       at random for this page load — weighted toward higher-rated
+       suppliers once real ratings exist. Since no supplier has a
+       real rating yet, this currently behaves as genuinely random
+       across all approved suppliers, which is the honest outcome
+       given the actual data — it'll naturally start favouring
+       higher-rated suppliers the moment ratings are added, with no
+       code changes needed then.
+       ============================================ -->
+  <script>
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    (async function () {
+      var result = await supabaseClient
+        .from('suppliers')
+        .select('*')
+        .eq('approved', true)
+        .order('rating', { ascending: false, nullsFirst: false });
+
+      var grid = document.getElementById('featuredGrid');
+
+      if (result.error || !result.data || result.data.length === 0) {
+        grid.innerHTML = '<p style="color:var(--ink-soft);">Check back soon — suppliers are being added.</p>';
+        return;
+      }
+
+      var suppliers = result.data;
+
+      // Weight toward the top-rated end of the list (rated suppliers
+      // already sort first, thanks to the query above) by picking
+      // from the top ~15 rather than the entire pool, then shuffling
+      // and taking 3. With no ratings yet, "top 15" is just whatever
+      // order the database returns, so this is honestly just random
+      // for now — exactly as it should be until real ratings exist.
+      var pool = suppliers.slice(0, 15);
+      var shuffled = pool.sort(function () { return Math.random() - 0.5; });
+      var chosen = shuffled.slice(0, 3);
+
+      grid.innerHTML = chosen.map(function (s) {
+        var photoUrl = s.image_url || ('https://picsum.photos/seed/' + encodeURIComponent('vowza-real-' + s.id) + '/600/450');
+        return '<a class="mini-card" href="supplier-profile.html?slug=' + encodeURIComponent(s.id) + '">' +
+          '<img src="' + photoUrl + '" alt="' + escapeHtml(s.business_name) + ' portfolio image">' +
+          '<div class="body">' +
+            '<div class="category">' + escapeHtml(s.category) + '</div>' +
+            '<h3>' + escapeHtml(s.business_name) + '</h3>' +
+            '<div class="meta">' + escapeHtml(s.location) + '</div>' +
+          '</div></a>';
+      }).join('');
+    })();
+  </script>
+
 </body>
-<ul>
-  <li>Photography</li>
-  <li>Florist</li>
-  <li>DJ</li>
-  <li>Hair & Makeup</li>
-</ul>
-<body>
-  <h1>Find out more</h1>
-	<a href="about.html">About</a>
-</body>
-<body>
-  <h1>Explore the suppliers</h1>
-	<a href="suppliers-profile.html">About</a>
-</body>
-<body>
-  <h1>Explore the suppliers listing</h1>
-	<a href="supplier-list.html">About</a>
-</body>
-<a href="https://github.com/filip-mgr/vowza">View this project on GitHub</a>
 </html>

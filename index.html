@@ -150,14 +150,18 @@
 
       var suppliers = result.data;
 
-      // Weight toward the top-rated end of the list (rated suppliers
-      // already sort first, thanks to the query above) by picking
-      // from the top ~15 rather than the entire pool, then shuffling
-      // and taking 3. With no ratings yet, "top 15" is just whatever
-      // order the database returns, so this is honestly just random
-      // for now — exactly as it should be until real ratings exist.
-      var pool = suppliers.slice(0, 15);
-      var shuffled = pool.sort(function () { return Math.random() - 0.5; });
+      // Whether ANY supplier has a real rating yet decides how we pool:
+      //  - No ratings at all (current reality): shuffle the ENTIRE
+      //    approved list, so "random" genuinely means random across
+      //    every supplier, not just whichever ones the database
+      //    happened to return first.
+      //  - Once real ratings exist: narrow to the top 15 highest-rated
+      //    first, THEN shuffle just those — so it's weighted toward
+      //    quality, with some variety among the best rather than
+      //    always showing the exact same top 3.
+      var anyRated = suppliers.some(function (s) { return s.rating !== null; });
+      var pool = anyRated ? suppliers.slice(0, 15) : suppliers;
+      var shuffled = pool.slice().sort(function () { return Math.random() - 0.5; });
       var chosen = shuffled.slice(0, 3);
 
       grid.innerHTML = chosen.map(function (s) {
