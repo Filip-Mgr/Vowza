@@ -106,7 +106,8 @@
         summaryEl.innerHTML = 'You haven\'t set up your wedding yet — <a href="wedding-setup.html" style="color:var(--evergreen); font-weight:500;">start here</a>.';
       }
 
-      // Fetch real bookings and real saved suppliers for this account
+      // Fetch real bookings, saved suppliers, AND this account's own
+      // reviews (so we know which confirmed bookings already have one)
       var bookingsResult = await supabaseClient
         .from('bookings')
         .select('*')
@@ -119,8 +120,14 @@
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
+      var reviewsResult = await supabaseClient
+        .from('reviews')
+        .select('booking_id')
+        .eq('user_id', userId);
+
       var bookings = (bookingsResult.data || []);
       var saved = (savedResult.data || []);
+      var reviewedBookingIds = (reviewsResult.data || []).map(function (r) { return r.booking_id; });
 
       // Don't show a supplier as "just saved" if they've also been
       // booked — the booking row already covers them
@@ -130,9 +137,17 @@
       var rowsHtml = '';
 
       bookings.forEach(function (b) {
-        rowsHtml += '<div class="list-row"><div class="info"><h3>' + (b.category || '') + '</h3><p>' +
+        var reviewBlock = '';
+        if (b.status === 'confirmed') {
+          if (reviewedBookingIds.indexOf(b.id) !== -1) {
+            reviewBlock = '<span style="font-size:13px; color:var(--ink-soft);">✓ Reviewed</span>';
+          } else {
+            reviewBlock = '<button type="button" class="btn ghost small review-btn" data-booking-id="' + b.id + '" data-supplier-slug="' + (b.supplier_slug || '') + '" data-supplier-name="' + (b.supplier_name || '').replace(/"/g, '&quot;') + '">Leave a Review</button>';
+          }
+        }
+        rowsHtml += '<div class="list-row" data-row-for="' + b.id + '"><div class="info"><h3>' + (b.category || '') + '</h3><p>' +
           (b.supplier_name || '') + (b.package_name ? ' — ' + b.package_name : '') + '</p></div>' +
-          statusBadge(b.status) + '</div>';
+          '<div class="actions" style="align-items:center;">' + statusBadge(b.status) + reviewBlock + '</div></div>';
       });
 
       savedOnly.forEach(function (s) {
@@ -146,6 +161,69 @@
       } else {
         container.innerHTML = rowsHtml;
       }
+
+      // ============================================
+      // LEAVE A REVIEW: clicking the button swaps it for an inline
+      // star-rating + comment form. This works via event delegation
+      // (one listener on the container) since these rows were just
+      // built dynamically above.
+      // ============================================
+      container.addEventListener('click', function (e) {
+        var btn = e.target.closest('.review-btn');
+        if (!btn) return;
+
+        var row = btn.closest('.list-row');
+        var formId = 'reviewForm-' + btn.dataset.bookingId;
+
+        row.insertAdjacentHTML('afterend',
+          '<div class="list-row" id="' + formId + '" style="display:block;">' +
+          '<div class="field" style="margin-bottom:10px;">' +
+            '<label>Rating</label>' +
+            '<select class="review-rating">' +
+              '<option value="5">★★★★★ (5)</option>' +
+              '<option value="4">★★★★☆ (4)</option>' +
+              '<option value="3">★★★☆☆ (3)</option>' +
+              '<option value="2">★★☆☆☆ (2)</option>' +
+              '<option value="1">★☆☆☆☆ (1)</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="field" style="margin-bottom:10px;">' +
+            '<label>Your review</label>' +
+            '<textarea class="review-comment" placeholder="How did it go with ' + btn.dataset.supplierName + '?"></textarea>' +
+          '</div>' +
+          '<button type="button" class="btn primary small submit-review-btn" data-booking-id="' + btn.dataset.bookingId + '" data-supplier-slug="' + btn.dataset.supplierSlug + '" data-supplier-name="' + btn.dataset.supplierName + '">Submit Review</button>' +
+          '</div>'
+        );
+        btn.remove(); // hide the original "Leave a Review" button while the form is open
+      });
+
+      container.addEventListener('click', async function (e) {
+        var submitBtn = e.target.closest('.submit-review-btn');
+        if (!submitBtn) return;
+
+        var formRow = submitBtn.closest('.list-row');
+        var rating = formRow.querySelector('.review-rating').value;
+        var comment = formRow.querySelector('.review-comment').value;
+
+        submitBtn.disabled = true;
+        var result = await supabaseClient.from('reviews').insert({
+          booking_id: submitBtn.dataset.bookingId,
+          user_id: userId,
+          supplier_slug: submitBtn.dataset.supplierSlug,
+          supplier_name: submitBtn.dataset.supplierName,
+          rating: parseInt(rating, 10),
+          comment: comment,
+          reviewer_name: (profileResult.data && profileResult.data.couple_name) || 'Verified booking'
+        });
+
+        if (result.error) {
+          submitBtn.disabled = false;
+          alert('Could not submit review: ' + result.error.message);
+          return;
+        }
+
+        formRow.outerHTML = '<div class="list-row"><span style="font-size:13px; color:var(--evergreen);">✓ Thanks for your review!</span></div>';
+      });
     })();
 
     document.getElementById('logoutLink').addEventListener('click', async function (e) {

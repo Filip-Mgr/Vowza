@@ -265,7 +265,7 @@
     // location) and is honest about everything else — no invented
     // portfolio, packages or reviews attributed to a real business
     // that hasn't actually added them.
-    function renderRealProfile(row) {
+    async function renderRealProfile(row) {
       document.getElementById('pageTitle').textContent = row.business_name + ' — Vowza';
       // Use a real uploaded photo if this supplier has one, otherwise
       // the same placeholder used on the Discover page.
@@ -292,7 +292,6 @@
       document.getElementById('supStars').textContent = '';
       document.getElementById('supRatingText').textContent = 'New to Vowza — no reviews yet';
       document.getElementById('supAbout').textContent = "This supplier hasn't added a full profile yet. Send an enquiry to ask about availability, packages and pricing.";
-
       document.getElementById('gallery').innerHTML =
         '<p style="color:var(--ink-soft); font-size:14px; grid-column:1/-1;">No portfolio photos uploaded yet.</p>';
 
@@ -314,6 +313,36 @@
 
       document.getElementById('reviewsList').innerHTML =
         '<p style="color:var(--ink-soft); font-size:14px;">No reviews yet.</p>';
+
+      // ============================================
+      // REAL REVIEWS: fetch anything actually submitted through the
+      // "Leave a Review" flow on my-wedding.html. If any exist, this
+      // overwrites the "New to Vowza" placeholder above with a genuine
+      // calculated average and real review text — never invented.
+      // ============================================
+      var reviewsResult = await supabaseClient
+        .from('reviews')
+        .select('*')
+        .eq('supplier_slug', row.id)
+        .order('created_at', { ascending: false });
+
+      var reviews = reviewsResult.data || [];
+
+      if (reviews.length > 0) {
+        var totalStars = reviews.reduce(function (sum, r) { return sum + r.rating; }, 0);
+        var avg = totalStars / reviews.length;
+        var fullStars = Math.round(avg);
+
+        document.getElementById('supStars').textContent = '★★★★★'.slice(0, fullStars) + '☆☆☆☆☆'.slice(0, 5 - fullStars);
+        document.getElementById('supRatingText').textContent = avg.toFixed(1) + ' (' + reviews.length + ' review' + (reviews.length === 1 ? '' : 's') + ')';
+
+        document.getElementById('reviewsList').innerHTML = reviews.map(function (r) {
+          var starDisplay = '★★★★★'.slice(0, r.rating) + '☆☆☆☆☆'.slice(0, 5 - r.rating);
+          return '<div class="review"><div class="stars">' + starDisplay + '</div>' +
+            '<p>' + escapeHtml(r.comment || '') + '</p>' +
+            '<div class="name">' + escapeHtml(r.reviewer_name || 'Verified booking') + '</div></div>';
+        }).join('');
+      }
     }
 
     (async function () {
@@ -329,7 +358,7 @@
         var fetchResult = await supabaseClient.from('suppliers').select('*').eq('id', slug).maybeSingle();
         if (fetchResult.data) {
           supplier = { name: fetchResult.data.business_name, category: fetchResult.data.category };
-          renderRealProfile(fetchResult.data);
+          await renderRealProfile(fetchResult.data);
         }
       }
 
