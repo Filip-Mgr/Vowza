@@ -64,6 +64,7 @@
         <a href="my-wedding.html">My Wedding</a>
         <a href="shortlist.html">Saved</a>
         <a href="couple-profile.html">Profile</a>
+        <a href="login.html" id="authLink">Log In</a>
       </nav>
     </div>
   </header>
@@ -133,6 +134,23 @@
       div.textContent = str || '';
       return div.innerHTML;
     }
+
+    // Show "Log In" or "Log Out" depending on whether anyone's
+    // actually signed in — this page has no other way to tell,
+    // unlike pages that require login to view at all.
+    (async function () {
+      var userResult = await supabaseClient.auth.getUser();
+      var authLink = document.getElementById('authLink');
+      if (userResult.data.user) {
+        authLink.textContent = 'Log Out';
+        authLink.href = '#';
+        authLink.addEventListener('click', async function (e) {
+          e.preventDefault();
+          await supabaseClient.auth.signOut();
+          window.location.reload();
+        });
+      }
+    })();
 
     (async function () {
       var result = await supabaseClient

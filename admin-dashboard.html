@@ -156,7 +156,7 @@
         : '<button type="button" class="btn primary small approve-btn">Approve</button>';
 
       tr.innerHTML =
-        '<td>' + (supplier.business_name || '') + '</td>' +
+        '<td><a href="supplier-profile.html?slug=' + encodeURIComponent(supplier.id) + '" target="_blank" style="color:var(--evergreen); font-weight:500;">' + (supplier.business_name || '') + ' →</a></td>' +
         '<td>' + (supplier.category || '') + '</td>' +
         '<td>' + (supplier.location || '') + '</td>' +
         '<td>' + (supplier.email || '') + '</td>' +
@@ -230,7 +230,7 @@
           ? new Date(b.wedding_date + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
           : '—';
         tr.innerHTML =
-          '<td>' + (b.supplier_name || '') + '</td>' +
+          '<td>' + (b.supplier_slug ? '<a href="supplier-profile.html?slug=' + encodeURIComponent(b.supplier_slug) + '" target="_blank" style="color:var(--evergreen); font-weight:500;">' + (b.supplier_name || '') + ' →</a>' : (b.supplier_name || '')) + '</td>' +
           '<td>' + (b.package_name || '') + '</td>' +
           '<td>' + dateDisplay + '</td>' +
           '<td>' +
