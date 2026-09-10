@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messages — Vowza</title>
+<title>Messages — Vowza for Suppliers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -24,19 +24,19 @@
   .msg-time { font-size: 11px; color: var(--ink-soft); margin-top: 3px; }
   .thread-input { display: flex; gap: 10px; padding: 14px; border-top: 1px solid var(--border); }
   .thread-input textarea { flex: 1; resize: none; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: inherit; font-size: 14px; }
-  @media (max-width: 700px) { .convo-list { grid-template-columns: 1fr; } .convo-sidebar { display: none; } .convo-sidebar.show-mobile { display: block; } }
+  @media (max-width: 700px) { .convo-list { grid-template-columns: 1fr; } .convo-sidebar { display: none; } }
 </style>
 </head>
 <body style="visibility:hidden;">
   <header class="site">
     <div class="wrap">
-      <a class="wordmark" href="index.html">Vowza</a>
+      <a class="wordmark" href="supplier-dashboard.html">Vowza <span style="font-size:12px; color:var(--ink-soft); font-family:'Work Sans',sans-serif; font-weight:400;">for Suppliers</span></a>
       <nav>
-        <a href="index.html">Home</a>
-        <a href="supplier-list.html">Discover</a>
-        <a href="my-wedding.html">My Wedding</a>
-        <a href="shortlist.html">Saved</a>
-        <a href="couple-profile.html">Profile</a>
+        <a href="supplier-dashboard.html">Dashboard</a>
+        <a href="supplier-enquiries.html">Enquiries</a>
+        <a href="supplier-availability.html">Calendar</a>
+        <a href="supplier-bookings.html">Bookings</a>
+        <a href="supplier-messages.html" class="active">Messages</a>
         <a href="#" id="logoutLink">Log Out</a>
       </nav>
     </div>
@@ -70,84 +70,74 @@
       return Math.floor(diff / 86400) + 'd ago';
     }
 
-    var currentUser = null;
-    var conversations = []; // [{ supplierId, supplierName, messages: [...] }]
-    var activeSupplierId = null;
+    var mySupplierId = null;
+    var conversations = []; // [{ coupleUserId, coupleName, messages: [...] }]
+    var activeCoupleId = null;
 
     async function loadConversations() {
-      // Every message this couple has ever sent or received
       var msgResult = await supabaseClient
         .from('messages')
         .select('*')
-        .eq('couple_user_id', currentUser.id)
+        .eq('supplier_id', mySupplierId)
         .order('created_at', { ascending: true });
 
       var messages = msgResult.data || [];
 
-      // Group by supplier_id to build one conversation per supplier
-      var bySupplier = {};
+      var byCouple = {};
       messages.forEach(function (m) {
-        if (!bySupplier[m.supplier_id]) bySupplier[m.supplier_id] = [];
-        bySupplier[m.supplier_id].push(m);
+        if (!byCouple[m.couple_user_id]) byCouple[m.couple_user_id] = [];
+        byCouple[m.couple_user_id].push(m);
       });
 
-      // If arriving from a supplier's profile page via ?supplier_id=,
-      // make sure that conversation exists in the list even with zero
-      // messages yet, ready for the couple to send the first one.
-      var params = new URLSearchParams(window.location.search);
-      var startSupplierId = params.get('supplier_id');
-      if (startSupplierId && !bySupplier[startSupplierId]) {
-        bySupplier[startSupplierId] = [];
-      }
+      var coupleIds = Object.keys(byCouple);
 
-      var supplierIds = Object.keys(bySupplier);
-
-      if (supplierIds.length === 0) {
+      if (coupleIds.length === 0) {
         document.getElementById('messagesArea').innerHTML =
-          '<div class="empty-state"><h3>No messages yet</h3><p>Message a supplier from their profile page to start a conversation.</p></div>';
+          '<div class="empty-state"><h3>No messages yet</h3><p>Couples will appear here once they message you about a booking.</p></div>';
         return;
       }
 
-      // Fetch each supplier's name (needed for display)
-      var suppliersResult = await supabaseClient
-        .from('suppliers')
-        .select('id, business_name')
-        .in('id', supplierIds);
+      // Look up each couple's name from their wedding profile, so
+      // suppliers see "Sasha & Filip" instead of a bare user ID
+      var profilesResult = await supabaseClient
+        .from('wedding_profiles')
+        .select('user_id, couple_name, email')
+        .in('user_id', coupleIds);
 
       var nameById = {};
-      (suppliersResult.data || []).forEach(function (s) { nameById[s.id] = s.business_name; });
+      (profilesResult.data || []).forEach(function (p) {
+        nameById[p.user_id] = p.couple_name || p.email || 'A couple';
+      });
 
-      conversations = supplierIds.map(function (id) {
-        return { supplierId: id, supplierName: nameById[id] || 'Unknown supplier', messages: bySupplier[id] };
+      conversations = coupleIds.map(function (id) {
+        return { coupleUserId: id, coupleName: nameById[id] || 'A couple', messages: byCouple[id] };
       }).sort(function (a, b) {
-        var aLast = a.messages.length ? a.messages[a.messages.length - 1].created_at : '';
-        var bLast = b.messages.length ? b.messages[b.messages.length - 1].created_at : '';
+        var aLast = a.messages[a.messages.length - 1].created_at;
+        var bLast = b.messages[b.messages.length - 1].created_at;
         return bLast.localeCompare(aLast);
       });
 
-      activeSupplierId = startSupplierId || conversations[0].supplierId;
+      if (!activeCoupleId) activeCoupleId = conversations[0].coupleUserId;
       renderConversations();
     }
 
     function renderConversations() {
       var sidebarHtml = conversations.map(function (c) {
         var last = c.messages[c.messages.length - 1];
-        var preview = last ? escapeHtml(last.body) : 'No messages yet — say hello!';
-        var time = last ? timeAgo(last.created_at) : '';
-        var activeClass = c.supplierId === activeSupplierId ? ' active' : '';
-        return '<div class="convo-item' + activeClass + '" data-supplier-id="' + c.supplierId + '">' +
-          '<h4>' + escapeHtml(c.supplierName) + '</h4>' +
-          '<p>' + preview + '</p>' +
-          (time ? '<p style="margin-top:4px;">' + time + '</p>' : '') +
+        var activeClass = c.coupleUserId === activeCoupleId ? ' active' : '';
+        return '<div class="convo-item' + activeClass + '" data-couple-id="' + c.coupleUserId + '">' +
+          '<h4>' + escapeHtml(c.coupleName) + '</h4>' +
+          '<p>' + escapeHtml(last.body) + '</p>' +
+          '<p style="margin-top:4px;">' + timeAgo(last.created_at) + '</p>' +
           '</div>';
       }).join('');
 
-      var active = conversations.find(function (c) { return c.supplierId === activeSupplierId; });
+      var active = conversations.find(function (c) { return c.coupleUserId === activeCoupleId; });
       var messagesHtml = active.messages.map(function (m) {
-        var mine = m.sender_role === 'couple';
+        var mine = m.sender_role === 'supplier';
         return '<div class="msg-bubble ' + (mine ? 'mine' : 'theirs') + '">' + escapeHtml(m.body) +
           '<div class="msg-time">' + timeAgo(m.created_at) + '</div></div>';
-      }).join('') || '<p style="color:var(--ink-soft); text-align:center; padding:30px 0;">No messages yet — say hello!</p>';
+      }).join('');
 
       document.getElementById('messagesArea').innerHTML =
         '<div class="convo-list">' +
@@ -155,7 +145,7 @@
           '<div class="convo-thread">' +
             '<div class="thread-messages" id="threadMessages">' + messagesHtml + '</div>' +
             '<div class="thread-input">' +
-              '<textarea id="messageInput" rows="1" placeholder="Type a message…"></textarea>' +
+              '<textarea id="messageInput" rows="1" placeholder="Reply…"></textarea>' +
               '<button type="button" class="btn primary small" id="sendBtn">Send</button>' +
             '</div>' +
           '</div>' +
@@ -168,7 +158,7 @@
     document.getElementById('messagesArea').addEventListener('click', function (e) {
       var item = e.target.closest('.convo-item');
       if (!item) return;
-      activeSupplierId = item.dataset.supplierId;
+      activeCoupleId = item.dataset.coupleId;
       renderConversations();
     });
 
@@ -178,10 +168,12 @@
       var body = input.value.trim();
       if (!body) return;
 
+      var active = conversations.find(function (c) { return c.coupleUserId === activeCoupleId; });
+
       var result = await supabaseClient.from('messages').insert({
-        couple_user_id: currentUser.id,
-        supplier_id: activeSupplierId,
-        sender_role: 'couple',
+        couple_user_id: activeCoupleId,
+        supplier_id: mySupplierId,
+        sender_role: 'supplier',
         body: body
       });
 
@@ -191,16 +183,36 @@
       }
 
       input.value = '';
-      await loadConversations(); // reload to show the new message
+      await loadConversations();
     });
 
+    // ============================================
+    // AUTH GUARD: must be logged in AND actually own a supplier
+    // profile (i.e. have completed supplier-onboarding.html) —
+    // otherwise there's no "supplier_id" for this account to see
+    // any messages through.
+    // ============================================
     (async function () {
       var userResult = await supabaseClient.auth.getUser();
       if (!userResult.data.user) {
         window.location.href = 'login.html';
         return;
       }
-      currentUser = userResult.data.user;
+
+      var supplierResult = await supabaseClient
+        .from('suppliers')
+        .select('id')
+        .eq('user_id', userResult.data.user.id)
+        .maybeSingle();
+
+      if (!supplierResult.data) {
+        document.body.style.visibility = 'visible';
+        document.getElementById('messagesArea').innerHTML =
+          '<div class="empty-state"><h3>No supplier profile found</h3><p>Complete <a href="supplier-onboarding.html" style="color:var(--evergreen); font-weight:500;">supplier onboarding</a> first to receive messages from couples.</p></div>';
+        return;
+      }
+
+      mySupplierId = supplierResult.data.id;
       document.body.style.visibility = 'visible';
       await loadConversations();
     })();

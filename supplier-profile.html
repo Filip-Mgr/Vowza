@@ -50,6 +50,7 @@
         <div class="cta-row">
           <a class="btn primary" href="#packages">See Packages &amp; Book</a>
           <button type="button" class="btn ghost save-btn" id="saveBtn">♥ Save</button>
+          <a class="btn ghost" id="messageLink" href="#">Message</a>
         </div>
       </div>
     </div>
@@ -168,6 +169,7 @@
         links.push('<a href="https://instagram.com/' + encodeURIComponent(handle) + '" target="_blank" rel="noopener" style="color:var(--evergreen); font-weight:500;">Instagram</a>');
       }
       document.getElementById('supLinks').innerHTML = links.join(' &nbsp;\u00b7&nbsp; ');
+      document.getElementById('messageLink').href = 'messages.html?supplier_id=' + encodeURIComponent(row.id);
 
       document.getElementById('supStars').textContent = '';
       document.getElementById('supRatingText').textContent = 'New to Vowza — no reviews yet';
