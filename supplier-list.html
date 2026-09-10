@@ -44,98 +44,8 @@
   </div>
 
   <div class="wrap">
-    <div class="grid">
-
-      <div class="card">
-        <img class="photo" src="https://picsum.photos/seed/vowza-photo1/600/450" alt="Jane Photography portfolio image">
-        <div class="body">
-          <div class="category">Photography</div>
-          <h3>Jane Photography</h3>
-          <div class="meta"><span>Melbourne</span><span>From $2,500</span></div>
-          <div class="rating"><span class="stars">★★★★★</span> 4.9 (86 reviews)</div>
-          <div class="availability"><span class="dot"></span> Available on your date</div>
-          <div class="actions">
-            <a class="btn primary" href="supplier-profile.html?slug=jane-photography">View Profile</a>
-            <button type="button" class="btn ghost save-btn" data-slug="jane-photography" data-name="Jane Photography" data-category="Photography" data-location="Melbourne" data-price="From $2,500">♥ Save</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <img class="photo" src="https://picsum.photos/seed/vowza-florist1/600/450" alt="Bloom & Co florist portfolio image">
-        <div class="body">
-          <div class="category">Florist</div>
-          <h3>Bloom & Co</h3>
-          <div class="meta"><span>Geelong</span><span>From $850</span></div>
-          <div class="rating"><span class="stars">★★★★★</span> 4.8 (52 reviews)</div>
-          <div class="availability"><span class="dot"></span> Available on your date</div>
-          <div class="actions">
-            <a class="btn primary" href="supplier-profile.html?slug=bloom-co">View Profile</a>
-            <button type="button" class="btn ghost save-btn" data-slug="bloom-co" data-name="Bloom & Co" data-category="Florist" data-location="Geelong" data-price="From $850">♥ Save</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <img class="photo" src="https://picsum.photos/seed/vowza-dj1/600/450" alt="DJ Marco portfolio image">
-        <div class="body">
-          <div class="category">DJ</div>
-          <h3>DJ Marco Live</h3>
-          <div class="meta"><span>Melbourne</span><span>From $1,100</span></div>
-          <div class="rating"><span class="stars">★★★★☆</span> 4.6 (34 reviews)</div>
-          <div class="availability"><span class="dot grey"></span> Booked on your date</div>
-          <div class="actions">
-            <a class="btn primary" href="supplier-profile.html?slug=dj-marco-live">View Profile</a>
-            <button type="button" class="btn ghost save-btn" data-slug="dj-marco-live" data-name="DJ Marco Live" data-category="DJ" data-location="Melbourne" data-price="From $1,100">♥ Save</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <img class="photo" src="https://picsum.photos/seed/vowza-hmu1/600/450" alt="Studio Belle hair and makeup portfolio image">
-        <div class="body">
-          <div class="category">Hair & Makeup</div>
-          <h3>Studio Belle</h3>
-          <div class="meta"><span>Melbourne</span><span>From $480</span></div>
-          <div class="rating"><span class="stars">★★★★★</span> 5.0 (61 reviews)</div>
-          <div class="availability"><span class="dot"></span> Available on your date</div>
-          <div class="actions">
-            <a class="btn primary" href="supplier-profile.html?slug=studio-belle">View Profile</a>
-            <button type="button" class="btn ghost save-btn" data-slug="studio-belle" data-name="Studio Belle" data-category="Hair & Makeup" data-location="Melbourne" data-price="From $480">♥ Save</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <img class="photo" src="https://picsum.photos/seed/vowza-video1/600/450" alt="Reel Moments videography portfolio image">
-        <div class="body">
-          <div class="category">Videography</div>
-          <h3>Reel Moments</h3>
-          <div class="meta"><span>Ballarat</span><span>From $1,900</span></div>
-          <div class="rating"><span class="stars">★★★★☆</span> 4.7 (29 reviews)</div>
-          <div class="availability"><span class="dot"></span> Available on your date</div>
-          <div class="actions">
-            <a class="btn primary" href="supplier-profile.html?slug=reel-moments">View Profile</a>
-            <button type="button" class="btn ghost save-btn" data-slug="reel-moments" data-name="Reel Moments" data-category="Videography" data-location="Ballarat" data-price="From $1,900">♥ Save</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <img class="photo" src="https://picsum.photos/seed/vowza-celebrant1/600/450" alt="Celebrant Anna portfolio image">
-        <div class="body">
-          <div class="category">Celebrant</div>
-          <h3>Anna Hart, Celebrant</h3>
-          <div class="meta"><span>Melbourne</span><span>From $650</span></div>
-          <div class="rating"><span class="stars">★★★★★</span> 4.9 (40 reviews)</div>
-          <div class="availability"><span class="dot"></span> Available on your date</div>
-          <div class="actions">
-            <a class="btn primary" href="supplier-profile.html?slug=anna-hart-celebrant">View Profile</a>
-            <button type="button" class="btn ghost save-btn" data-slug="anna-hart-celebrant" data-name="Anna Hart, Celebrant" data-category="Celebrant" data-location="Melbourne" data-price="From $650">♥ Save</button>
-          </div>
-        </div>
-      </div>
-
+    <div class="grid" id="supplierGrid">
+      <p style="color:var(--ink-soft); grid-column:1/-1;">Loading suppliers…</p>
     </div>
   </div>
 
@@ -263,11 +173,11 @@
 
     // ============================================
     // REAL SUPPLIERS — fetches every approved row from the suppliers
-    // table and appends a card for each, alongside the 6 curated
-    // examples above. Real businesses only show what's actually
-    // known about them (name, category, location) — no invented
-    // ratings, prices, or "available on your date" claims, since
-    // none of that is real data for them yet.
+    // table and builds a card for each. This is now the ONLY source
+    // of cards on this page — real businesses only show what's
+    // actually known about them (name, category, location) — no
+    // invented ratings, prices, or "available on your date" claims,
+    // since none of that is real data for them yet.
     // ============================================
     async function loadRealSuppliers() {
       var result = await supabaseClient
@@ -278,7 +188,13 @@
 
       if (result.error || !result.data) return;
 
-      var grid = document.querySelector('.grid');
+      var grid = document.getElementById('supplierGrid');
+      grid.innerHTML = ''; // clear the "Loading…" placeholder
+
+      if (result.data.length === 0) {
+        grid.innerHTML = '<p style="color:var(--ink-soft); grid-column:1/-1;">No suppliers listed yet — check back soon.</p>';
+        return;
+      }
 
       result.data.forEach(function (supplier) {
         ensureChipForCategory(supplier.category);
@@ -334,7 +250,7 @@
     }
     applySavedStates();
 
-    document.querySelector('.grid').addEventListener('click', async function (e) {
+    document.getElementById('supplierGrid').addEventListener('click', async function (e) {
       var btn = e.target.closest('.save-btn');
       if (!btn) return;
 

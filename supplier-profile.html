@@ -111,102 +111,17 @@
       return div.innerHTML;
     }
 
-    var SUPPLIERS = {
-      'jane-photography': {
-        name: 'Jane Photography', category: 'Photography', location: 'Melbourne, VIC · Travels up to 100km',
-        stars: '★★★★★', ratingText: '4.9 (86 reviews)', coverSeed: 'vowza-photo1',
-        about: 'Documentary-style wedding photography with a focus on candid, unposed moments. Based in Melbourne, available for weddings across Victoria.',
-        gallerySeeds: ['vowza-g1', 'vowza-g2', 'vowza-g3', 'vowza-g4', 'vowza-g5', 'vowza-g6'],
-        services: ['Full-day wedding photography', 'Engagement shoots', 'Second photographer add-on', 'Same-day photo previews'],
-        packages: [
-          { name: 'Essential Package', desc: '6 hours coverage, 1 photographer, online gallery', price: '$1,500' },
-          { name: 'Premium Package', desc: '10 hours coverage, 2 photographers, engagement shoot, online gallery', price: '$2,500', recommended: true }
-        ],
-        reviews: [
-          { stars: '★★★★★', text: "Jane made us feel completely at ease all day. The photos captured moments we didn't even realise she'd taken.", name: 'Sasha & Filip, married November 2026' },
-          { stars: '★★★★★', text: 'Professional, punctual, and the gallery was ready within a week. Could not recommend more highly.', name: 'Riley & Morgan, married June 2026' }
-        ]
-      },
-      'bloom-co': {
-        name: 'Bloom & Co', category: 'Florist', location: 'Geelong, VIC · Travels up to 80km',
-        stars: '★★★★★', ratingText: '4.8 (52 reviews)', coverSeed: 'vowza-florist1',
-        about: 'Seasonal, garden-style florals for weddings across the Geelong and Bellarine Peninsula region, from bouquets to full reception styling.',
-        gallerySeeds: ['vowza-fg1', 'vowza-fg2', 'vowza-fg3', 'vowza-fg4', 'vowza-fg5', 'vowza-fg6'],
-        services: ['Bridal bouquet & bridesmaid posies', 'Ceremony arbour & aisle florals', 'Reception centrepieces', 'Delivery & on-site setup'],
-        packages: [
-          { name: 'Essentials Package', desc: 'Bridal bouquet, 3 bridesmaid posies, 2 buttonholes', price: '$650' },
-          { name: 'Full Styling Package', desc: 'Bridal party florals, ceremony arbour, 8 reception centrepieces', price: '$1,850', recommended: true }
-        ],
-        reviews: [
-          { stars: '★★★★★', text: 'The bouquets were even more beautiful in person than the mockup. Every detail was considered.', name: 'Priya & Daniel, married November 2026' },
-          { stars: '★★★★☆', text: 'Lovely to work with and very responsive leading up to the big day.', name: 'Emma & Jack, married March 2026' }
-        ]
-      },
-      'dj-marco-live': {
-        name: 'DJ Marco Live', category: 'DJ', location: 'Melbourne, VIC · Travels state-wide',
-        stars: '★★★★☆', ratingText: '4.6 (34 reviews)', coverSeed: 'vowza-dj1',
-        about: 'High-energy wedding DJ with over 10 years of experience reading a room — ceremony, cocktail hour and reception, all handled by one act.',
-        gallerySeeds: ['vowza-dg1', 'vowza-dg2', 'vowza-dg3', 'vowza-dg4', 'vowza-dg5', 'vowza-dg6'],
-        services: ['Ceremony sound & music', 'Cocktail hour playlist', 'Reception MC & DJ set', 'Dance floor lighting'],
-        packages: [
-          { name: 'Reception Only', desc: '5 hours reception DJ + MC, basic dance floor lighting', price: '$1,100' },
-          { name: 'Full Day Package', desc: 'Ceremony sound, cocktail hour, 6 hours reception, premium lighting rig', price: '$1,900', recommended: true }
-        ],
-        reviews: [
-          { stars: '★★★★★', text: 'Marco read the room perfectly all night — dance floor was full from the first song to the last.', name: 'Aisha & Tom, married October 2026' },
-          { stars: '★★★★☆', text: 'Great communication beforehand and a smooth night. Would book again.', name: 'Liam & Grace, married August 2026' }
-        ]
-      },
-      'studio-belle': {
-        name: 'Studio Belle', category: 'Hair & Makeup', location: 'Melbourne, VIC · Mobile service',
-        stars: '★★★★★', ratingText: '5.0 (61 reviews)', coverSeed: 'vowza-hmu1',
-        about: 'Bridal hair and makeup artistry with an on-location team, specialising in natural, long-wearing looks for the whole bridal party.',
-        gallerySeeds: ['vowza-hg1', 'vowza-hg2', 'vowza-hg3', 'vowza-hg4', 'vowza-hg5', 'vowza-hg6'],
-        services: ['Bridal trial session', 'Wedding day hair & makeup', 'Bridal party styling', 'Touch-up kit provided'],
-        packages: [
-          { name: 'Bride Only', desc: 'Trial session + wedding day hair and makeup for the bride', price: '$480' },
-          { name: 'Bridal Party Package', desc: 'Bride + up to 4 bridesmaids, on-location, touch-up kit included', price: '$1,350', recommended: true }
-        ],
-        reviews: [
-          { stars: '★★★★★', text: 'My makeup lasted through happy tears, dancing, and 30-degree heat. Exactly what I asked for.', name: 'Chloe & Ben, married January 2027' },
-          { stars: '★★★★★', text: 'The whole bridal party felt gorgeous and completely looked after all morning.', name: 'Zara & Nate, married December 2026' }
-        ]
-      },
-      'reel-moments': {
-        name: 'Reel Moments', category: 'Videography', location: 'Ballarat, VIC · Travels up to 150km',
-        stars: '★★★★☆', ratingText: '4.7 (29 reviews)', coverSeed: 'vowza-video1',
-        about: 'Cinematic wedding films that favour genuine moments over staged shots — a highlight reel plus full ceremony and speeches footage.',
-        gallerySeeds: ['vowza-vg1', 'vowza-vg2', 'vowza-vg3', 'vowza-vg4', 'vowza-vg5', 'vowza-vg6'],
-        services: ['Ceremony filming', 'Speeches & reception coverage', 'Same-day teaser edit', 'Full highlight film (8-12 min)'],
-        packages: [
-          { name: 'Highlights Package', desc: '6 hours coverage, 4-6 minute highlight film', price: '$1,900' },
-          { name: 'Full Day Cinematic', desc: '10 hours coverage, full highlight film, ceremony & speeches in full, same-day teaser', price: '$3,200', recommended: true }
-        ],
-        reviews: [
-          { stars: '★★★★★', text: 'We cried watching the highlight film. It captured exactly how the day felt, not just how it looked.', name: 'Mia & Connor, married May 2026' },
-          { stars: '★★★★☆', text: 'Unobtrusive on the day and the final film was worth every cent.', name: 'Harriet & Sam, married July 2026' }
-        ]
-      },
-      'anna-hart-celebrant': {
-        name: 'Anna Hart, Celebrant', category: 'Celebrant', location: 'Melbourne, VIC · Travels state-wide',
-        stars: '★★★★★', ratingText: '4.9 (40 reviews)', coverSeed: 'vowza-celebrant1',
-        about: 'Warm, personalised ceremonies that sound like you, not a script — legal paperwork handled, rehearsal included.',
-        gallerySeeds: ['vowza-cg1', 'vowza-cg2', 'vowza-cg3', 'vowza-cg4', 'vowza-cg5', 'vowza-cg6'],
-        services: ['Ceremony scripting & personalisation', 'Legal paperwork & lodgement', 'Rehearsal attendance', 'PA system for outdoor ceremonies'],
-        packages: [
-          { name: 'Ceremony Package', desc: 'Personalised ceremony, legal paperwork, one planning call', price: '$650' },
-          { name: 'Complete Package', desc: 'Personalised ceremony, legal paperwork, rehearsal attendance, PA system included', price: '$950', recommended: true }
-        ],
-        reviews: [
-          { stars: '★★★★★', text: 'Anna took the time to actually get to know us, and it showed in every word of the ceremony.', name: 'Noah & Ivy, married February 2027' },
-          { stars: '★★★★★', text: 'Calm, warm, and completely unflappable when it started raining mid-ceremony.', name: 'Ruby & Owen, married April 2026' }
-        ]
-      }
-    };
+    // Escapes a string before inserting it as HTML — used for any
+    // value that came from the database (not hand-typed), so a stray
+    // character in a website URL or business name can't break the page.
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
 
-    // Read ?slug=... from the URL. It's either one of the 6 curated
-    // demo suppliers above, or a real supplier's database ID (from a
-    // card built dynamically on supplier-list.html).
+    // Read ?slug=... from the URL — a real supplier's database ID,
+    // passed in from wherever the "View Profile" link was clicked.
     var params = new URLSearchParams(window.location.search);
     var slug = params.get('slug');
 
@@ -214,51 +129,16 @@
       return 'https://picsum.photos/seed/' + seed + '/' + w + '/' + h;
     }
 
-    // Renders the page from one of the 6 curated demo objects above —
-    // unchanged from before.
-    function renderFullProfile(supplier) {
-      document.getElementById('pageTitle').textContent = supplier.name + ' — Vowza';
-      document.getElementById('heroImg').src = img(supplier.coverSeed, 700, 525);
-      document.getElementById('heroImg').alt = supplier.name + ' cover image';
-      document.getElementById('supCategory').textContent = supplier.category;
-      document.getElementById('supName').textContent = supplier.name;
-      document.getElementById('supLocation').textContent = supplier.location;
-      document.getElementById('supLinks').innerHTML = ''; // demo suppliers don't have real website/instagram data
-      document.getElementById('supStars').textContent = supplier.stars;
-      document.getElementById('supRatingText').textContent = supplier.ratingText;
-      document.getElementById('supAbout').textContent = supplier.about;
-      document.getElementById('availabilityHeading').textContent = 'Availability — February 2027';
-      document.getElementById('availabilityHeading').closest('section').style.display = '';
-
-      var galleryClasses = ['tall', '', 'wide', '', '', 'tall'];
-      var galleryHtml = '';
-      supplier.gallerySeeds.forEach(function (seed, i) {
-        var cls = galleryClasses[i] || '';
-        var dims = cls === 'tall' ? [300, 600] : (cls === 'wide' ? [600, 300] : [300, 300]);
-        galleryHtml += '<img class="' + cls + '" src="' + img(seed, dims[0], dims[1]) + '" alt="Portfolio image ' + (i + 1) + '">';
-      });
-      document.getElementById('gallery').innerHTML = galleryHtml;
-
-      document.getElementById('servicesList').innerHTML = supplier.services.map(function (s) {
-        return '<li>' + s + '</li>';
-      }).join('');
-
-      document.getElementById('packagesList').innerHTML = supplier.packages.map(function (p) {
-        var bookingUrl = 'booking-request.html?slug=' + encodeURIComponent(slug) +
-          '&supplier=' + encodeURIComponent(supplier.name) +
-          '&category=' + encodeURIComponent(supplier.category) +
-          '&package=' + encodeURIComponent(p.name) +
-          '&price=' + encodeURIComponent(p.price.replace(/[^0-9]/g, ''));
-        return '<div class="package' + (p.recommended ? ' recommended' : '') + '">' +
-          '<div><div class="name">' + p.name + '</div><div class="desc">' + p.desc + '</div></div>' +
-          '<div style="text-align:right;"><div class="price">' + p.price + '</div>' +
-          '<a class="btn primary small" style="margin-top:8px; display:inline-block;" href="' + bookingUrl + '">Request to Book</a></div></div>';
-      }).join('');
-
-      document.getElementById('reviewsList').innerHTML = supplier.reviews.map(function (r) {
-        return '<div class="review"><div class="stars">' + r.stars + '</div><p>' + r.text + '</p><div class="name">' + r.name + '</div></div>';
-      }).join('');
+    // Shown when the slug in the URL doesn't match any real supplier —
+    // either a bad link, or a supplier that's since been removed.
+    function renderNotFound() {
+      document.getElementById('pageTitle').textContent = 'Supplier not found — Vowza';
+      document.querySelector('.hero').innerHTML =
+        '<div></div><div><h1>Supplier not found</h1><p style="color:var(--ink-soft); margin-bottom:20px;">This supplier may have been removed, or the link is incorrect.</p>' +
+        '<a class="btn primary" href="supplier-list.html">Back to Discover</a></div>';
+      document.querySelectorAll('section.block').forEach(function (el) { el.style.display = 'none'; });
     }
+
 
     // Renders the page from a REAL supplier row fetched from the
     // database. Only shows what's genuinely known (name, category,
@@ -348,13 +228,7 @@
     (async function () {
       var supplier;
 
-      if (SUPPLIERS[slug]) {
-        supplier = SUPPLIERS[slug];
-        renderFullProfile(supplier);
-      } else if (slug) {
-        // Not one of the 6 demo suppliers — try it as a real
-        // supplier's database ID (this is how cards built dynamically
-        // on supplier-list.html link here).
+      if (slug) {
         var fetchResult = await supabaseClient.from('suppliers').select('*').eq('id', slug).maybeSingle();
         if (fetchResult.data) {
           supplier = { name: fetchResult.data.business_name, category: fetchResult.data.category };
@@ -363,11 +237,12 @@
       }
 
       if (!supplier) {
-        // Nothing matched at all (bad or missing slug) — fall back
-        // to Jane Photography rather than show a blank page.
-        slug = 'jane-photography';
-        supplier = SUPPLIERS[slug];
-        renderFullProfile(supplier);
+        // No slug, or it didn't match any real supplier — show a
+        // clear "not found" state rather than defaulting to any
+        // particular business.
+        renderNotFound();
+        document.body.style.visibility = 'visible';
+        return;
       }
 
       var saveBtn = document.getElementById('saveBtn');
