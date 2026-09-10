@@ -233,10 +233,34 @@
           '<td>' + (b.supplier_name || '') + '</td>' +
           '<td>' + (b.package_name || '') + '</td>' +
           '<td>' + dateDisplay + '</td>' +
-          '<td><span class="status-badge ' + (b.status || 'pending') + '">' + (b.status || 'pending') + '</span></td>';
+          '<td>' +
+            '<select class="booking-status-select" data-booking-id="' + b.id + '">' +
+              '<option value="pending"' + (b.status === 'pending' ? ' selected' : '') + '>Pending</option>' +
+              '<option value="accepted"' + (b.status === 'accepted' ? ' selected' : '') + '>Accepted</option>' +
+              '<option value="confirmed"' + (b.status === 'confirmed' ? ' selected' : '') + '>Confirmed</option>' +
+              '<option value="declined"' + (b.status === 'declined' ? ' selected' : '') + '>Declined</option>' +
+            '</select>' +
+          '</td>';
         bookingsTableBody.appendChild(tr);
       });
     }
+
+    // Changing the dropdown saves immediately — this is what actually
+    // lets a booking become "confirmed," which is the one thing that
+    // unlocks the couple's "Leave a Review" button on their end.
+    document.getElementById('bookingsTableBody').addEventListener('change', async function (e) {
+      var select = e.target.closest('.booking-status-select');
+      if (!select) return;
+
+      var result = await supabaseClient
+        .from('bookings')
+        .update({ status: select.value })
+        .eq('id', select.dataset.bookingId);
+
+      if (result.error) {
+        alert('Could not update status: ' + result.error.message);
+      }
+    });
 
     // ============================================
     // AUTH GUARD — this is what actually protects the page.
