@@ -145,14 +145,20 @@
             reviewBlock = '<button type="button" class="btn ghost small review-btn" data-booking-id="' + b.id + '" data-supplier-slug="' + (b.supplier_slug || '') + '" data-supplier-name="' + (b.supplier_name || '').replace(/"/g, '&quot;') + '">Leave a Review</button>';
           }
         }
+        var supplierLink = b.supplier_slug
+          ? '<a href="supplier-profile.html?slug=' + encodeURIComponent(b.supplier_slug) + '" style="color:var(--evergreen); font-weight:500;">' + (b.supplier_name || '') + '</a>'
+          : (b.supplier_name || '');
         rowsHtml += '<div class="list-row" data-row-for="' + b.id + '"><div class="info"><h3>' + (b.category || '') + '</h3><p>' +
-          (b.supplier_name || '') + (b.package_name ? ' — ' + b.package_name : '') + '</p></div>' +
+          supplierLink + (b.package_name ? ' — ' + b.package_name : '') + '</p></div>' +
           '<div class="actions" style="align-items:center;">' + statusBadge(b.status) + reviewBlock + '</div></div>';
       });
 
       savedOnly.forEach(function (s) {
+        var savedLink = s.supplier_slug
+          ? '<a href="supplier-profile.html?slug=' + encodeURIComponent(s.supplier_slug) + '" style="color:var(--evergreen); font-weight:500;">' + (s.supplier_name || '') + '</a>'
+          : (s.supplier_name || '');
         rowsHtml += '<div class="list-row"><div class="info"><h3>' + (s.category || '') + '</h3><p>' +
-          (s.supplier_name || '') + '</p></div><span class="status-badge saved">❤ Saved</span></div>';
+          savedLink + '</p></div><span class="status-badge saved">❤ Saved</span></div>';
       });
 
       var container = document.getElementById('weddingRows');
